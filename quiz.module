@@ -3550,7 +3550,7 @@ function quiz_allow_score_access($quiz, $account = NULL) {
     return true;
   }
 
-  return user_access('score own quiz') && ($quiz->uid == $account->uid);
+  return user_access('score own quiz', $account) && ($quiz->uid == $account->uid);
 }
 
 /**
