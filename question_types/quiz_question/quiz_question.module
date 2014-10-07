@@ -12,6 +12,11 @@
 define('QUIZ_QUESTION_NUM_LATEST', 10);
 
 /**
+ * Include hook implementations.
+ */
+require_once dirname(__FILE__) . '/quiz_question.hooks.inc';
+
+/**
  * Figure out if a user has access to score a certain result
  *
  * @param $vid
