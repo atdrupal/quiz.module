@@ -51,5 +51,8 @@ before_script:
   - drush cc all
 
 script:
-  - drush test-run --dirty --field-labels=0 'Contact'
-  - drush test-run --dirty --field-labels=0 'Quiz'
+  - drush test-run 'Contact'
+  - drush test-run 'Quiz'
+
+notifications:
+  email: false
