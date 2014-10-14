@@ -21,6 +21,8 @@ abstract class QuizTestCase extends DrupalWebTestCase {
    *   Array of user permissions to add.
    */
   function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
+    $this->profile = 'testing';
+  
     $modules[] = 'quiz';
     $modules[] = 'quiz_question';
     parent::setUp($modules);
