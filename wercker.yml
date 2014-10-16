@@ -13,7 +13,7 @@ build:
           code: |-
               drush site-install testing --db-url=$WERCKER_MYSQL_URL --yes
     -  script:
-          name: Enable simpletest
+          name: Enable modules
           code: |-
               drush en --yes simpletest long_answer matching multichoice quiz_ddlines quiz_directions quiz_page quiz_question scale short_answer truefalse
               drush vset --yes simpletest_verbose FALSE
