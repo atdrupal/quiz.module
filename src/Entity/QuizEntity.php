@@ -34,8 +34,6 @@ class QuizEntity extends Entity {
   public $log;
 
   public function __construct(array $values = array()) {
-    // fill default value
-    $values += (array) quiz()->getQuizHelper()->getSettingHelper()->getUserDefaultSettings();
     parent::__construct($values, 'quiz_entity');
   }
 
@@ -44,6 +42,11 @@ class QuizEntity extends Entity {
    */
   protected function defaultUri() {
     return array('path' => 'quiz/' . $this->identifier());
+  }
+
+  public function __get($name) {
+    $default = quiz()->getQuizHelper()->getSettingHelper()->getQuizDefaultSettings();
+    return isset($default[$name]) ? $default[$name] : NULL;
   }
 
 }
