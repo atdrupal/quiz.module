@@ -53,7 +53,7 @@ class SettingHelper extends FormHelper {
     }
 
     // No defaults set yet.
-    return $this->getNodeDefaultSettings();
+    return $this->getQuizDefaultSettings();
   }
 
   public function updateUserDefaultSettings($node) {
@@ -112,7 +112,7 @@ class SettingHelper extends FormHelper {
    * @return
    *   Array of default values.
    */
-  public function getNodeDefaultSettings() {
+  public function getQuizDefaultSettings() {
     return (object) array(
         'aid'                        => NULL,
         'allow_jumping'              => 0,
