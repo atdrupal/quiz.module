@@ -45,7 +45,7 @@ class QuizEntity extends Entity {
   }
 
   public function __get($name) {
-    $default = quiz()->getQuizHelper()->getSettingHelper()->getQuizDefaultSettings();
+    $default = (array) quiz()->getQuizHelper()->getSettingHelper()->getQuizDefaultSettings();
     return isset($default[$name]) ? $default[$name] : NULL;
   }
 
