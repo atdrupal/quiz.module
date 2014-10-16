@@ -44,9 +44,14 @@ class QuizEntity extends Entity {
     return array('path' => 'quiz/' . $this->identifier());
   }
 
-  public function __get($name) {
-    $default = (array) quiz()->getQuizHelper()->getSettingHelper()->getQuizDefaultSettings();
-    return isset($default[$name]) ? $default[$name] : NULL;
+  public function save() {
+    foreach ((array) quiz()->getQuizHelper()->getSettingHelper()->getQuizDefaultSettings() as $k => $v) {
+      if (!isset($this->{$k})) {
+        $this->{$k} = $v;
+      }
+    }
+
+    return parent::save();
   }
 
 }
