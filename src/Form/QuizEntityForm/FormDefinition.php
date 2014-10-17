@@ -12,6 +12,7 @@ class FormDefinition extends FormHelper {
 
   public function __construct($quiz) {
     $this->quiz = $quiz;
+
     if (empty($this->quiz->qid)) {
       foreach ((array) quiz()->getQuizHelper()->getSettingHelper()->getUserDefaultSettings($legacy = FALSE) as $k => $v) {
         if (!isset($this->quiz->{$k}) || is_null($this->quiz->{$k})) {
