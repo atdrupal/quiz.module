@@ -35,7 +35,7 @@ class QuizEntityTest extends QuizTestCase {
     // ---------------------
     // Create entity
     // ---------------------
-    $quiz = entity_create('quiz_entity', array('type' => 'quiz', 'pass_rate' => 95));
+    $quiz = entity_create('quiz_entity', array('type' => 'quiz', 'title' => 'Demo quiz', 'pass_rate' => 95));
     $this->assertTrue($quiz instanceof QuizEntity, 'Quiz entity is created correctly using entity_create().');
 
     // ---------------------
@@ -49,9 +49,6 @@ class QuizEntityTest extends QuizTestCase {
     // ---------------------
     // Insert entity
     // ---------------------
-    $quiz->changed = $quiz->created = time();
-    $quiz->title = 'Demo quiz';
-    $quiz->uid = 1;
     entity_save('quiz_entity', $quiz);
     $this->assertNotNull($quiz, 'Quiz entity is created successully.');
 
@@ -81,6 +78,7 @@ class QuizEntityTest extends QuizTestCase {
     $quiz_1 = reset($quiz_1);
     $quiz_2 = entity_load('quiz_entity', array($quiz->qid));
     $quiz_2 = reset($quiz_2);
+
     $this->assertNotEqual($quiz_1->log, $quiz_2->log, 'New revision is created correctly.');
     $this->assertEqual(95, $quiz_1->pass_rate, 'Quiz property is saved and loaded correctly.');
 
