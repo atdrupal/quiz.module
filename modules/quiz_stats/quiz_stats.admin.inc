@@ -3,7 +3,6 @@
 /**
  * @file
  * Administration file for Quiz stats Module
- *
  */
 
 /**
@@ -115,8 +114,8 @@ function _get_quiz_grade_range_chart($vid, $uid = 0) {
   $chart .= '</div>';
   // Return the chart with some meta data
   return array(
-    'chart' => $chart,
-    'title' => t('Distribution'),
+    'chart'       => $chart,
+    'title'       => t('Distribution'),
     'explanation' => t('This chart shows the distribution of the scores on this quiz.'),
   );
 }
@@ -156,8 +155,8 @@ function _get_quiz_top_scorers_chart($vid, $uid = 0) {
   $chart .= theme('quiz_top_scorers', array('scorer' => $top_scorers));
   $chart .= '</div>';
   return array(
-    'chart' => $chart,
-    'title' => t('Top scorers'),
+    'chart'       => $chart,
+    'title'       => t('Top scorers'),
     'explanation' => t('This chart shows what question takers have the highest scores'),
   );
 }
@@ -191,8 +190,8 @@ function _get_quiz_status_chart($vid, $uid = 0) {
   $chart .= theme('get_quiz_status_chart', array('quiz' => $quiz));
   $chart .= '</div>';
   return array(
-    'chart' => $chart,
-    'title' => t('Status'),
+    'chart'       => $chart,
+    'title'       => t('Status'),
     'explanation' => t('This chart shows the status for all attempts made to answer this revision of the quiz.'),
   );
 }
@@ -245,8 +244,8 @@ function _get_date_vs_takeup_count_chart($vid, $uid = 0) {
   // generate date vs takeup count line chart
   $chart .= '</div>';
   return array(
-    'chart' => $chart,
-    'title' => t('Activity'),
+    'chart'       => $chart,
+    'title'       => t('Activity'),
     'explanation' => t('This chart shows how many times the quiz has been taken the last !days days.', array('!days' => $end)),
   );
 }
@@ -290,14 +289,14 @@ function theme_quiz_grade_range($variables) {
   $count = array_sum((array) $range);
 
   $chart = array(
-    '#type' => 'chart',
+    '#type'       => 'chart',
     '#chart_type' => 'column',
-    '#title' => t('Score distribution'),
+    '#title'      => t('Score distribution'),
   );
   $chart['range'] = array(
-    '#type' => 'chart_data',
-    '#title' => t('% of quiz takers'),
-    '#data' => array(
+    '#type'   => 'chart_data',
+    '#title'  => t('% of quiz takers'),
+    '#data'   => array(
       ($range->zero_to_twenty / $count) * 100,
       $range->twenty_to_fourty / $count * 100,
       $range->fourty_to_sixty / $count * 100,
@@ -307,8 +306,8 @@ function theme_quiz_grade_range($variables) {
     '#suffix' => '%',
   );
   $chart['xaxis'] = array(
-    '#title' => 'Score',
-    '#type' => 'chart_xaxis',
+    '#title'  => 'Score',
+    '#type'   => 'chart_xaxis',
     '#labels' => array(
       '0-20%',
       '20-40%',
@@ -319,8 +318,8 @@ function theme_quiz_grade_range($variables) {
   );
   $chart['yaxis'] = array(
     '#title' => 'Distribution',
-    '#type' => 'chart_yaxis',
-    '#max' => $max * 100,
+    '#type'  => 'chart_yaxis',
+    '#max'   => $max * 100,
   );
   return drupal_render($chart);
 }
@@ -337,22 +336,19 @@ function theme_quiz_grade_range($variables) {
 function theme_quiz_top_scorers($variables) {
   $attendees = $variables['scorer'];
   $chart = array(
-    '#chart_id' => 'quiz_top_scorers',
-    '#title' => t('Quiz Top Scorers'),
-    '#type' => CHART_TYPE_BAR_V_GROUPED,
-    '#size' => chart_size(600, 400),
-    '#grid_lines' => chart_grid_lines(10, 10),
-    '#bar_size' => chart_bar_size(20, 15),
+    '#chart_id'   => 'quiz_top_scorers',
+    '#type'       => 'chart',
+    '#chart_type' => 'column',
+    '#title'      => t('Quiz Top Scorers'),
   );
+  $chart['bar_data'] = array('#type' => 'chart_data', '#title' => 'Result');
   foreach ($attendees as $attendee) {
-    $chart['#data'][][] = $attendee['score'];
-    $chart['#data_colors'][] = chart_unique_color(count($chart['#data']));
-    $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][2][] = chart_mixed_axis_label(t('Quiz Attendees'), 50);
-    $chart['#legends'][] = $attendee['name'] . ' ' . $attendee['score'] . ' %';
+    $chart['bar_data']['#data'][] = (float) $attendee['score'];
+    $chart['bar_data']['#labels'][] = $attendee['name'] . ' ' . $attendee['score'] . '%';
   }
-  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][1][] = chart_mixed_axis_label(t('Score') . ' (%)', 100);
-  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, 100);
-  return theme('chart', array('chart' => $chart));
+  $chart['yaxis'] = array('#type' => 'chart_yaxis', '#title' => t('Score') . ' (%)');
+  $chart['xaxis'] = array('#type' => 'chart_xaxis', '#title' => 'Quiz Attendees');
+  return drupal_render($chart);
 }
 
 /**
@@ -369,16 +365,16 @@ function theme_get_quiz_status_chart($variables) {
   $quiz['total'] = $quiz['no_pass'] + $quiz['no_fail'] + $quiz['no_incomplete'];
 
   $chart = array(
-    '#type' => 'chart',
-    '#title' => t('Quiz results'),
+    '#type'       => 'chart',
+    '#title'      => t('Quiz results'),
     '#chart_type' => 'pie',
   );
 
   $chart['pie_data'] = array(
-    '#type' => 'chart_data',
-    '#title' => t('Result'),
+    '#type'   => 'chart_data',
+    '#title'  => t('Result'),
     '#labels' => array('Pass', 'Incomplete', 'Fail'),
-    '#data' => array(
+    '#data'   => array(
       ($quiz['no_pass'] / $quiz['total']) * 100,
       ($quiz['no_incomplete'] / $quiz['total']) * 100,
       ($quiz['no_fail'] / $quiz['total']) * 100,
@@ -400,12 +396,12 @@ function theme_date_vs_takeup_count($variables) {
   $days = array_reverse($days);
   $max_count = 0;
   $chart = array(
-    '#chart_id' => 'test_chart',
-    '#title' => '',
-    '#type' => CHART_TYPE_LINE,
-    '#size' => chart_size(600, 400),
+    '#chart_id'          => 'test_chart',
+    '#title'             => '',
+    '#type'              => CHART_TYPE_LINE,
+    '#size'              => chart_size(600, 400),
     //'#chart_fill' => chart_fill('c', 'eeeeee'),
-    '#grid_lines' => chart_grid_lines(10, 10, 1, 5),
+    '#grid_lines'        => chart_grid_lines(10, 10, 1, 5),
     '#adjust_resolution' => TRUE,
   );
   $interval = 1;
@@ -444,7 +440,7 @@ function theme_quiz_stats_get_basic_stats($variables) {
   }
   $header = $rows = array();
   $header = array(
-    'title' => t('Quiz'),
+    'title'   => t('Quiz'),
     'creator' => t('Author'),
     'created' => t('Created'),
   );
@@ -457,7 +453,7 @@ function theme_quiz_stats_get_basic_stats($variables) {
   foreach ($results as $result) {
     $title_link = user_access('access author stats') ? 'node/' . $result['nid'] . '/quiz/statistics' : 'user/' . arg(1) . '/stats/';
     $row = array(
-      'title' => l($chart_icon . ' ' . $result['title'], $title_link, array('html' => TRUE)),
+      'title'   => l($chart_icon . ' ' . $result['title'], $title_link, array('html' => TRUE)),
       'creator' => l($result['name'], 'user/' . $result['uid']),
       'created' => format_date($result['created'], 'short'),
     );
