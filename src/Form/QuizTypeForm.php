@@ -72,11 +72,50 @@ class QuizTypeForm {
     $quiz_type->description = filter_xss_admin($quiz_type->description);
     $quiz_type->help = filter_xss_admin($quiz_type->help);
     $quiz_type->save();
+    $this->quizAddBodyField($quiz_type);
     $form_state['redirect'] = 'admin/structure/quiz';
   }
 
   public function submitDelete($form, &$form_state) {
     $form_state['redirect'] = 'admin/structure/quiz/manage/' . $form_state['quiz_type']->type . '/delete';
+  }
+
+  /**
+   * Add default body field to a quiz type
+   */
+  private function quizAddBodyField($quiz_type, $label = 'Body') {
+    $field = field_info_field('body');
+    $instance = field_info_instance('quiz', 'body', $quiz_type->type);
+    if (empty($field)) {
+      $field = array(
+        'field_name' => 'body',
+        'type' => 'text_with_summary',
+        'entity_types' => array('node'),
+      );
+      $field = field_create_field($field);
+    }
+    if (empty($instance)) {
+      $instance = array(
+        'field_name' => 'body',
+        'entity_type' => 'quiz',
+        'bundle' => $quiz_type->type,
+        'label' => $label,
+        'widget' => array('type' => 'text_textarea_with_summary'),
+        'settings' => array('display_summary' => TRUE),
+        'display' => array(
+          'default' => array(
+            'label' => 'hidden',
+            'type' => 'text_default',
+          ),
+          'teaser' => array(
+            'label' => 'hidden',
+            'type' => 'text_summary_or_trimmed',
+          ),
+        ),
+      );
+      $instance = field_create_instance($instance);
+    }
+    return $instance;
   }
 
 }
