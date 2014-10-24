@@ -29,14 +29,15 @@ class QuizEntityType extends Entity {
   /**
    * Add default body field to a quiz type
    */
-  public function quizAddBodyField($label = 'Body') {
+  public function quizAddBodyField($label = NULL) {
+    $label = $label ? $label : t('Body');
     $field = field_info_field('body');
-    $instance = field_info_instance('quiz', 'body', $this->type);
+    $instance = field_info_instance('quiz_entity', 'body', $this->type);
     if (empty($field)) {
       $field = array(
         'field_name' => 'body',
         'type' => 'text_with_summary',
-        'entity_types' => array('node'),
+        'entity_types' => array('quiz_entity'),
       );
       $field = field_create_field($field);
     }
