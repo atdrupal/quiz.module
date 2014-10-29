@@ -112,9 +112,7 @@ class QuizAdminController {
     // settings store for the current user.
     $uid = isset($uid) ? $uid : $GLOBALS['user']->uid;
 
-    $query = db_select('quiz_user_settings', 'qus')
-      ->fields('qus')
-      ->condition('uid', $uid);
+    $query = db_select('quiz_user_settings', 'qus')->fields('qus')->condition('uid', $uid);
     $res = $query->execute()->fetchAssoc();
     if (!empty($res)) {
       foreach ($res as $key => $value) {

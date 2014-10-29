@@ -105,7 +105,7 @@ class ResultHelper {
       . " FROM {quiz_results_answers} ra "
       . "   LEFT JOIN {node} n ON ra.question_nid = n.nid"
       . "   LEFT JOIN {quiz_results} r ON ra.result_id = r.result_id"
-      . "   LEFT OUTER JOIN {quiz_relationship} rs ON (ra.question_vid = rs.question_vid) AND rs.quiz_vid = r.vid "
+      . "   LEFT OUTER JOIN {quiz_relationship} rs ON (ra.question_vid = rs.question_vid) AND rs.quiz_vid = r.quiz_vid"
       . "   LEFT OUTER JOIN {quiz_terms} qt ON (qt.vid = :vid AND qt.tid = ra.tid) "
       . " WHERE ra.result_id = :rid "
       . " ORDER BY ra.number, ra.answer_timestamp";
