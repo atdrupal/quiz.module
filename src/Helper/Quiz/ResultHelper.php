@@ -30,7 +30,7 @@ class ResultHelper {
     $score = $this->calculateScore($quiz, $result_id);
     db_update('quiz_results')
       ->fields(array(
-        'score' => $score['percentage_score'],
+          'score' => $score['percentage_score'],
       ))
       ->condition('result_id', $result_id)
       ->execute();
@@ -210,11 +210,11 @@ class ResultHelper {
 
     // 4. Return the score.
     return array(
-      'question_count'   => $count,
-      'possible_score'   => $possible_score,
-      'numeric_score'    => $total_score,
-      'percentage_score' => ($possible_score == 0) ? 0 : round(($total_score * 100) / $possible_score),
-      'is_evaluated'     => $is_evaluated,
+        'question_count'   => $count,
+        'possible_score'   => $possible_score,
+        'numeric_score'    => $total_score,
+        'percentage_score' => ($possible_score == 0) ? 0 : round(($total_score * 100) / $possible_score),
+        'is_evaluated'     => $is_evaluated,
     );
   }
 
@@ -226,7 +226,7 @@ class ResultHelper {
    */
   public function deleteByUserId($uid) {
     $res = db_query("SELECT result_id FROM {quiz_results} WHERE uid = :uid", array(
-      ':uid' => $uid));
+        ':uid' => $uid));
     $result_ids = array();
     while ($result_id = $res->fetchField()) {
       $result_ids[] = $result_id;
@@ -257,7 +257,7 @@ class ResultHelper {
         $best_result_id = db_query('SELECT result_id FROM {quiz_results}
           WHERE nid = :nid AND uid = :uid AND is_evaluated = :is_evaluated
           ORDER BY score DESC', array(':nid'          => $quiz->qid, ':uid'          => $account->uid,
-          ':is_evaluated' => 1)
+            ':is_evaluated' => 1)
           )
           ->fetchField();
         if (!$best_result_id) {
@@ -265,10 +265,10 @@ class ResultHelper {
         }
         $res = db_query('SELECT result_id FROM {quiz_results}
           WHERE nid = :nid AND uid = :uid AND result_id != :best_rid AND is_evaluated = :is_evaluated', array(
-          ':nid'          => $quiz->qid,
-          ':uid'          => $account->uid,
-          ':is_evaluated' => 1,
-          ':best_rid'     => $best_result_id
+            ':nid'          => $quiz->qid,
+            ':uid'          => $account->uid,
+            ':is_evaluated' => 1,
+            ':best_rid'     => $best_result_id
         ));
         $result_ids = array();
         while ($result_id2 = $res->fetchField()) {
@@ -283,10 +283,10 @@ class ResultHelper {
               AND uid = :uid
               AND is_evaluated = :is_evaluated
               AND result_id != :result_id', array(
-          ':nid'          => $quiz->qid,
-          ':uid'          => $account->uid,
-          ':is_evaluated' => 1,
-          ':result_id'    => $result_id
+            ':nid'          => $quiz->qid,
+            ':uid'          => $account->uid,
+            ':is_evaluated' => 1,
+            ':result_id'    => $result_id
         ));
         $result_ids = array();
         while ($result_id2 = $res->fetchField()) {
@@ -308,15 +308,16 @@ class ResultHelper {
    *   The userid of the user the old in progress results belong to.
    */
   public function deleteIncompletedResultsByUserId($quiz, $uid) {
-    $res = db_query('SELECT qnr.result_id FROM {quiz_results} qnr
+    $res = db_query('SELECT qnr.result_id
+          FROM {quiz_results} qnr
           WHERE qnr.uid = :uid
-          AND qnr.nid = :nid
-          AND qnr.time_end = :time_end
-          AND qnr.vid < :vid', array(
-      ':uid'      => $uid,
-      ':nid'      => $quiz->qid,
-      ':time_end' => 1,
-      ':vid'      => $quiz->vid));
+            AND qnr.quiz_qid = :qid
+            AND qnr.time_end = :time_end
+            AND qnr.quiz_vid < :vid', array(
+        ':uid'      => $uid,
+        ':qid'      => $quiz->qid,
+        ':time_end' => 1,
+        ':vid'      => $quiz->vid));
     $result_ids = array();
     while ($result_id = $res->fetchField()) {
       $result_ids[] = $result_id;
