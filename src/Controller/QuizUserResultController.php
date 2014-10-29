@@ -81,7 +81,7 @@ class QuizUserResultController {
 
   private function setBreadcrumb() {
     $bc = drupal_get_breadcrumb();
-    $bc[] = l($this->quiz->title, isset($this->quiz->nid) ? 'node/' . $this->quiz_id : 'quiz/' . $this->quiz_id);
+    $bc[] = l($this->quiz->title, 'quiz/' . $this->quiz_id);
     drupal_set_breadcrumb($bc);
   }
 

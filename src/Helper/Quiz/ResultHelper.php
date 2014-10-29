@@ -80,10 +80,14 @@ class ResultHelper {
   /**
    * Load a specific result answer.
    */
-  public function loadAnswerResult($result_id, $nid, $vid) {
-    $sql = 'SELECT * from {quiz_results_answers} WHERE result_id = :result_id AND question_nid = :nid AND question_vid = :vid';
-    $result = db_query($sql, array(':result_id' => $result_id, ':nid' => $nid, ':vid' => $vid));
-    if ($row = $result->fetch()) {
+  public function loadAnswerResult($result_id, $question_nid, $question_vid) {
+    $sql = 'SELECT * '
+      . ' FROM {quiz_results_answers} '
+      . ' WHERE result_id = :result_id '
+      . '   AND question_nid = :nid '
+      . '   AND question_vid = :vid';
+    $params = array(':result_id' => $result_id, ':nid' => $question_nid, ':vid' => $question_vid);
+    if ($row = db_query($sql, $params)->fetch()) {
       return entity_load_single('quiz_result_answer', $row->result_answer_id);
     }
   }
@@ -99,8 +103,8 @@ class ResultHelper {
   public function getAnswers($quiz, $result_id) {
     $sql = "SELECT ra.question_nid, ra.question_vid, n.type, rs.max_score, qt.max_score as term_max_score "
       . " FROM {quiz_results_answers} ra "
-      . "   LEFT JOIN {node} n ON (ra.question_nid = n.nid) "
-      . "   LEFT JOIN {quiz_results} r ON (ra.result_id = r.result_id) "
+      . "   LEFT JOIN {node} n ON ra.question_nid = n.nid"
+      . "   LEFT JOIN {quiz_results} r ON ra.result_id = r.result_id"
       . "   LEFT OUTER JOIN {quiz_relationship} rs ON (ra.question_vid = rs.question_vid) AND rs.quiz_vid = r.vid "
       . "   LEFT OUTER JOIN {quiz_terms} qt ON (qt.vid = :vid AND qt.tid = ra.tid) "
       . " WHERE ra.result_id = :rid "
@@ -254,18 +258,26 @@ class ResultHelper {
       case QUIZ_KEEP_ALL:
         return FALSE;
       case QUIZ_KEEP_BEST:
-        $best_result_id = db_query('SELECT result_id FROM {quiz_results}
-          WHERE nid = :nid AND uid = :uid AND is_evaluated = :is_evaluated
-          ORDER BY score DESC', array(':nid'          => $quiz->qid, ':uid'          => $account->uid,
-            ':is_evaluated' => 1)
-          )
-          ->fetchField();
+        $best_result_id = db_query(
+          'SELECT result_id FROM {quiz_results}
+           WHERE quiz_qid = :qid
+             AND uid = :uid
+             AND is_evaluated = :is_evaluated
+           ORDER BY score DESC', array(
+            ':qid'          => $quiz->qid,
+            ':uid'          => $account->uid,
+            ':is_evaluated' => 1))->fetchField();
         if (!$best_result_id) {
           return;
         }
-        $res = db_query('SELECT result_id FROM {quiz_results}
-          WHERE nid = :nid AND uid = :uid AND result_id != :best_rid AND is_evaluated = :is_evaluated', array(
-            ':nid'          => $quiz->qid,
+
+        $res = db_query('SELECT result_id
+          FROM {quiz_results}
+          WHERE quiz_qid = :qid
+            AND uid = :uid
+            AND result_id != :best_rid
+            AND is_evaluated = :is_evaluated', array(
+            ':qid'          => $quiz->qid,
             ':uid'          => $account->uid,
             ':is_evaluated' => 1,
             ':best_rid'     => $best_result_id
@@ -279,11 +291,11 @@ class ResultHelper {
       case QUIZ_KEEP_LATEST:
         $res = db_query('SELECT result_id
             FROM {quiz_results}
-            WHERE nid = :nid
+            WHERE quiz_qid = :qid
               AND uid = :uid
               AND is_evaluated = :is_evaluated
               AND result_id != :result_id', array(
-            ':nid'          => $quiz->qid,
+            ':qid'          => $quiz->qid,
             ':uid'          => $account->uid,
             ':is_evaluated' => 1,
             ':result_id'    => $result_id

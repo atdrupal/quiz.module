@@ -833,6 +833,7 @@ class QuizHelper {
           'number'           => $options['question_data']['number'],
           'tid'              => ($quiz->randomization == 3 && $result->tid) ? $result->tid : 0,
     );
+
     entity_save('quiz_result_answer', $answer);
   }
 
