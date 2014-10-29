@@ -72,6 +72,7 @@ class QuizTypeForm {
     $quiz_type->description = filter_xss_admin($quiz_type->description);
     $quiz_type->help = filter_xss_admin($quiz_type->help);
     $quiz_type->save();
+    $quiz_type->quizAddBodyField();
     $form_state['redirect'] = 'admin/structure/quiz';
   }
 
