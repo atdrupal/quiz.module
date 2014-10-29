@@ -50,7 +50,7 @@ class QuizTakeController extends QuizTakeLegacyController {
     }
 
     // Enforce that we have the same quiz version.
-    if (($this->result) && ($this->quiz->vid != $this->result->vid)) {
+    if (($this->result) && ($this->quiz->vid != $this->result->quiz_vid)) {
       $this->quiz = quiz_entity_single_load($this->getQuizId(), $this->quiz->vid);
     }
 

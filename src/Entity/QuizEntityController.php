@@ -132,7 +132,7 @@ class QuizEntityController extends EntityAPIController {
     // Delete quiz results
     $query = db_select('quiz_results');
     $query->fields('quiz_results', array('result_id'));
-    $query->condition('nid', $ids);
+    $query->condition('quiz_qid', $ids);
     if ($result_ids = $query->execute()->fetchCol()) {
       quiz()->getQuizHelper()->getResultHelper()->deleteByIds($result_ids);
     }
