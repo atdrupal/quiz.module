@@ -82,7 +82,7 @@ function quiz_generate($quiz_type, $question_types, $question_limit) {
 function quiz_generate_questions($quiz, $question_type) {
   $question_array = array(
       'type'      => $question_type,
-      'quiz_qid'  => $quiz->nid,
+      'quiz_nid'  => $quiz->nid,
       'quiz_vid'  => $quiz->vid,
       'comment'   => 2,
       'changed'   => REQUEST_TIME,
