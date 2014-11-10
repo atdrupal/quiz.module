@@ -128,7 +128,6 @@ class MultichoiceTestCase extends QuizQuestionTestCase {
    * @todo I don't know how we would test random questions.
    */
   function testRandomOrder() {
-    $this->drupalLogin($this->admin);
     $question = $this->testCreateQuizQuestion(array('choice_random' => 1));
     $quiz = $this->linkQuestionToQuiz($question);
 
