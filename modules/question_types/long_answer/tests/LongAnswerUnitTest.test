@@ -29,8 +29,6 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
    * correctly.
    */
   public function testGradeAnswerManualFeedback() {
-    $this->drupalLogin($this->admin);
-
     $question_node1 = $this->testCreateQuizQuestion();
     $quiz = $this->linkQuestionToQuiz($question_node1);
 
@@ -70,8 +68,6 @@ class LongAnswerTestCase extends QuizQuestionTestCase {
     $this->assertText('Your score: 50%');
 
     // Strange behavior - extra spacing in the HTML.
-    // $this->assertText('Score 3 of 10');
-    // $this->assertText('Score 7 of 10');
     $this->assertText('Feedback for answer 1.');
     $this->assertText('Feedback for answer 2.');
   }
