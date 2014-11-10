@@ -210,6 +210,13 @@ function quiz_result_is_question_answered($result, $question) {
   return FALSE;
 }
 
+/**
+ * Helper function to faciliate icon display, like "correct" or "selected".
+ */
+function quiz_icon($icon) {
+  return theme('quiz_answer_result', array('type' => $icon));
+}
+
 // ---------------------
 //  Internal functions
 // ---------------------

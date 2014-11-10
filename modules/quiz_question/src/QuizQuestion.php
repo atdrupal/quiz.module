@@ -131,7 +131,7 @@ abstract class QuizQuestion {
     );
 
     if (!empty($this->node->nid)) {
-      if ($properties = entity_load('quiz_question', FALSE, array('nid' => $this->node->nid, 'vid' => $this->node->vid))) {
+      if ($properties = entity_load('quiz_question_properties', FALSE, array('nid' => $this->node->nid, 'vid' => $this->node->vid))) {
         $quiz_question = reset($properties);
       }
     }
@@ -192,11 +192,16 @@ abstract class QuizQuestion {
     if (isset($this->nodeProperties)) {
       return $this->nodeProperties;
     }
-    $props['max_score'] = db_query('SELECT max_score
+
+    $props['max_score'] = db_query(
+      'SELECT max_score
             FROM {quiz_question_properties}
-            WHERE nid = :nid AND vid = :vid', array(':nid' => $this->node->nid, ':vid' => $this->node->vid))->fetchField();
+            WHERE nid = :nid AND vid = :vid', array(
+        ':nid' => $this->node->nid,
+        ':vid' => $this->node->vid))->fetchField();
     $props['is_quiz_question'] = TRUE;
     $this->nodeProperties = $props;
+
     return $props;
   }
 
@@ -319,7 +324,7 @@ abstract class QuizQuestion {
     $current_question = node_load($question_nid);
 
     // There was an answer submitted.
-    $response = _quiz_question_response_get_instance($_SESSION['quiz'][$quiz->qid]['result_id'], $current_question, $answer);
+    $response = quiz_answer_controller()->getInstance($_SESSION['quiz'][$quiz->qid]['result_id'], $current_question, $answer);
     if ($quiz->repeat_until_correct && !$response->isCorrect()) {
       form_set_error('', t('The answer was incorrect. Please try again.'));
 

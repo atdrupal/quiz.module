@@ -219,20 +219,27 @@ function theme_date_vs_takeup_count($variables) {
  *   HTML table containing quiz title, author, questions count, attempt count
  */
 function theme_quiz_stats_get_basic_stats($variables) {
+  module_load_include('inc', 'quiz', 'quiz.pages');
+
   $results = $variables['results'];
   if (empty($results)) {
     return '<p>' . t('No questions were found.') . '</p>';
   }
+
   $rows = array();
   $header = array('title' => t('Quiz'), 'creator' => t('Author'), 'created' => t('Created'));
   if (user_access('access author stats')) {
     $header['questions_count'] = t('Questions');
     $header['attempt_count'] = t('Attempts');
   }
-  $p = drupal_get_path('module', 'quiz_stats');
-  $chart_icon = theme('image', array('path' => "$p/chart.png", 'width' => t('Charts'), 'height' => t('See charts')));
+
+  $chart_icon = theme('image', array(
+      'path'   => drupal_get_path('module', 'quiz_stats') . '/chart.png',
+      'width'  => t('Charts'),
+      'height' => t('See charts')
+  ));
   foreach ($results as $result) {
-    $title_link = user_access('access author stats') ? 'quiz/' . $result['quiz_qid'] . '/statistics' : 'user/' . arg(1) . '/stats/';
+    $title_link = user_access('access author stats') ? 'quiz/' . $result['qid'] . '/statistics' : 'user/' . arg(1) . '/stats/';
     $row = array(
         'title'   => l($chart_icon . ' ' . $result['title'], $title_link, array('html' => TRUE)),
         'creator' => l($result['name'], 'user/' . $result['uid']),
@@ -240,11 +247,14 @@ function theme_quiz_stats_get_basic_stats($variables) {
     );
     if (user_access('access author stats')) {
       $row['questions_count'] = quiz_controller()->getStats()->countAllQuestions($result['vid']);
-      $row['attempt_count'] = _quiz_get_attempt_count($result['nid']);
+      $row['attempt_count'] = _quiz_get_attempt_count($result['qid']);
     }
     $rows[] = $row;
   }
-  module_load_include('inc', 'quiz', 'quiz.pages');
   $cc = '<em>' . t('Chart icon from !url', array('!url' => 'pinvoke.com')) . '</em>';
-  return theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'tablesorter'))) . $cc;
+  return theme('table', array(
+        'header'     => $header,
+        'rows'       => $rows,
+        'attributes' => array('id' => 'tablesorter')
+    )) . $cc;
 }

@@ -281,7 +281,7 @@ abstract class QuizQuestionResponse {
     $form['response']['#markup'] = theme('quiz_question_feedback__' . $type, array('labels' => $headers, 'data' => $rows));
 
     if ($this->canReview('question_feedback')) {
-      if ($properties = entity_load('quiz_question', FALSE, array('nid' => $this->quizQuestion->node->nid, 'vid' => $this->quizQuestion->node->vid))) {
+      if ($properties = entity_load('quiz_question_properties', FALSE, array('nid' => $this->quizQuestion->node->nid, 'vid' => $this->quizQuestion->node->vid))) {
         $quiz_question = reset($properties);
         $form['question_feedback']['#markup'] = check_markup($quiz_question->feedback, $quiz_question->feedback_format);
       }

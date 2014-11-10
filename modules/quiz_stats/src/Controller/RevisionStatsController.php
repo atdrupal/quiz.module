@@ -57,7 +57,7 @@ class RevisionStatsController {
     $sql = "SELECT COUNT(result_id) AS count,
             DATE_FORMAT(FROM_UNIXTIME(time_start), '%Y-%m-%e') AS date
             FROM {quiz_results}
-            WHERE vid = :vid AND time_start > (UNIX_TIMESTAMP(NOW()) - (86400*$end))";
+            WHERE quiz_vid = :vid AND time_start > (UNIX_TIMESTAMP(NOW()) - (86400*$end))";
     $sql_args[':vid'] = $this->quiz_vid;
     if ($this->uid) {
       $sql .= " AND uid = :uid";

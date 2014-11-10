@@ -26,20 +26,20 @@ require_once dirname(__FILE__) . '/quiz_question.hooks.inc';
  *  Array of question types.
  */
 function quiz_get_question_types() {
-  static $quiz_questions = array();
+  static $question_types = array();
 
   // We vastly improves performance by statically caching the question types.
-  if (!empty($quiz_questions)) {
-    return $quiz_questions;
+  if (!empty($question_types)) {
+    return $question_types;
   }
 
   // Get question types from the modules that defines them.
-  if ($quiz_questions = module_invoke_all('quiz_question_info')) {
-    return $quiz_questions;
+  if (!$question_types = module_invoke_all('quiz_question_info')) {
+    $msg = t('You need to install and enable at least one question type (multichoice for instance) to use quiz.');
+    throw new RuntimeException($msg);
   }
 
-  drupal_set_message(t('You need to install and enable at least one question type(multichoice for instance) to use quiz.'), 'warning', FALSE);
-  return array();
+  return $question_types;
 }
 
 /**
@@ -54,55 +54,31 @@ function quiz_get_question_types() {
  */
 function quiz_question_access_to_score($vid, $result_id) {
   global $user;
-  $sql = 'SELECT * FROM {quiz_results_answers} WHERE result_id = :result_id AND question_vid = :question_vid';
-  $answer = db_query($sql, array(':result_id' => $result_id, ':question_vid' => $vid))->fetch();
-  if (!$answer) {
+
+  $sql = 'SELECT *'
+    . ' FROM {quiz_results_answers}'
+    . ' WHERE result_id = :result_id AND question_vid = :question_vid';
+  if (!$answer = db_query($sql, array(':result_id' => $result_id, ':question_vid' => $vid))->fetch()) {
     return FALSE;
   }
+
   if (user_access('score any quiz')) {
     return TRUE;
   }
+
   if (user_access('score taken quiz answer')) {
-    $uid = db_query('SELECT uid from {quiz_results} qnr WHERE qnr.result_id = :result_id', array(':result_id' => $result_id))->fetchField();
-    if ($uid == $user->uid) {
+    $sql = 'SELECT uid FROM {quiz_results} qnr WHERE qnr.result_id = :result_id';
+    if ($user->uid == db_query($sql, array(':result_id' => $result_id))->fetchField()) {
       return TRUE;
     }
   }
+
   if (user_access('score own quiz')) {
-    return db_query('SELECT r.uid FROM {node_revision} r
-            JOIN {quiz_results} qnr ON (r.nid = qnr.nid)
-            WHERE qnr.result_id = :result_id
-            ', array(':result_id' => $result_id))->fetchField() == $user->uid;
-  }
-}
-
-/**
- * Form for teaser display
- *
- * @param $node
- *  The question node
- * @return
- *  Content array
- */
-function _quiz_question_teaser_content($node) {
-  $content['question_type'] = array(
-      '#markup' => '<div class="question_type_name">' . node_type_get_type($node)->name . '</div>',
-      '#weight' => -100,
-  );
-  return $content;
-}
-
-/**
- * Check if a question has already been answered by anyone.
- *
- * This is to see if a new revision of a question should be made when saving.
- *
- * @return bool
- *  TRUE if a user has submitted an answer for this question.
- */
-function quiz_question_has_been_answered($question) {
-  if ($question_instance = _quiz_question_get_instance($question, true)) {
-    return $question_instance->hasBeenAnswered();
+    $sql = 'SELECT r.uid'
+      . ' FROM {node_revision} r'
+      . ' JOIN {quiz_results} qnr ON (r.nid = qnr.nid)'
+      . ' WHERE qnr.result_id = :result_id';
+    return $user->uid == db_query($sql, array(':result_id' => $result_id))->fetchField();
   }
 }
 
@@ -113,7 +89,7 @@ function quiz_question_config($form, $context) {
   $form['#validate'] = array();
 
   // Go through all question types and merge their config forms
-  foreach (_quiz_question_get_implementations() as $type => $values) {
+  foreach (quiz_question_get_info() as $type => $values) {
     $function = $type . '_quiz_question_config';
     if ($admin_form = $function()) {
       $form[$type] = $admin_form;
@@ -175,7 +151,7 @@ function _quiz_question_get_instance(&$node, $use_cached = FALSE) {
   }
 
   // No cached instance of QuizQuestion has been returned. We construct a new instance
-  $info = _quiz_question_get_implementations();
+  $info = quiz_question_get_info();
   $constructor = $info[$name]['question provider'];
   if (empty($constructor)) {
     return FALSE;
@@ -203,72 +179,6 @@ function _quiz_question_get_instance(&$node, $use_cached = FALSE) {
 }
 
 /**
- * Get an instance of a quiz question responce.
- *
- * Get information about the class and use it to construct a new
- * object of the appropriate type.
- *
- * @param $result_id
- *  Result id
- * @param $question
- *  The question node(not a QuizQuestion instance)
- * @param $answer
- *  Resonce to the answering form.
- * @param $nid
- *  Question node id
- * @param $vid
- *  Question node version id
- * @return
- *  The appropriate QuizQuestionResponce extension instance
- */
-function _quiz_question_response_get_instance($result_id, $question, $answer = NULL, $nid = NULL, $vid = NULL) {
-  // We cache responses to improve performance
-  static $quiz_responses = array();
-
-  if (is_object($question) && isset($quiz_responses[$result_id][$question->vid])) {
-    // We refresh the question node in case it has been changed since we cached the response
-    $quiz_responses[$result_id][$question->vid]->refreshQuestionNode($question);
-    if ($quiz_responses[$result_id][$question->vid]->is_skipped !== FALSE) {
-      return $quiz_responses[$result_id][$question->vid];
-    }
-  }
-  elseif (isset($quiz_responses[$result_id][$vid])) {
-    if ($quiz_responses[$result_id][$vid]->is_skipped !== FALSE) {
-      return $quiz_responses[$result_id][$vid];
-    }
-  }
-
-  if (!isset($quiz_responses[$result_id])) {
-    // Prepare to cache responses for this result id
-    $quiz_responses[$result_id] = array();
-  }
-
-  // If the question node isn't set we fetch it from the QuizQuestion instance this responce belongs to
-  if (!isset($question)) {
-    $question_node = node_load($nid, $vid);
-    $question = _quiz_question_get_instance($question_node, TRUE)->node;
-  }
-
-  if (!$question) {
-    return FALSE;
-  }
-
-  $info = _quiz_question_get_implementations();
-  $constructor = $info[$question->type]['response provider'];
-  $to_return = new $constructor($result_id, $question, $answer);
-
-  // All responce classes must extend QuizQuestionResponse
-  if (!($to_return instanceof QuizQuestionResponse)) {
-    $msg = t('The question-response isn\'t a QuizQuestionResponse. It needs to extend the QuizQuestionResponse interface, or extend the abstractQuizQuestionResponse class.');
-    drupal_set_message($msg, 'error', FALSE);
-  }
-  // Cache the responce instance
-  $quiz_responses[$result_id][$question->vid] = $to_return;
-
-  return $to_return;
-}
-
-/**
  * Get the information about various implementations of quiz questions.
  *
  * @param $reset
@@ -277,70 +187,20 @@ function _quiz_question_response_get_instance($result_id, $question, $answer = N
  *  An array of information about quiz question implementations.
  * @see quiz_question_quiz_question_info() for an example of a quiz question info hook.
  */
-function _quiz_question_get_implementations($name = NULL, $reset = FALSE) {
+function quiz_question_get_info($name = NULL, $reset = FALSE) {
   static $info = array();
+
   if (empty($info) || $reset) {
     $qtypes = module_invoke_all('quiz_question_info');
     foreach ($qtypes as $type => $definition) {
-      // We only want the ones with classes.
-      if (!empty($definition['question provider'])) {
-        // Cache the info
+      if (!empty($definition['question provider'])) { # We only want the ones with classes.
         $info[$type] = $definition;
       }
     }
     drupal_alter('quiz_question_info', $info);
   }
-  return $info;
-}
 
-/**
- * Refreshes the quiz_question_latest_quizzes table when a user has modified a new quiz.
- *
- * The latest quizzes table is used to know what quizzes the user has been using lately.
- *
- * @param int $qid
- *   ID of the last quiz the current user modified
- */
-function quiz_question_refresh_latest_quizzes($qid) {
-  global $user;
-
-  // Delete entry if it allready exists
-  db_delete('quiz_question_latest_quizzes')
-    ->condition('uid', $user->uid)
-    ->condition('quiz_qid', $qid)
-    ->execute();
-
-  // Inserts as new entry to get new id. Latest quizzes are ordered by id(descending)
-  db_insert('quiz_question_latest_quizzes')
-    ->fields(array('uid' => $user->uid, 'quiz_qid' => $qid))
-    ->execute();
-
-  // If we have to many entries for current user, delete the oldest entries…
-  $min_id = db_select('quiz_question_latest_quizzes', 'lq')
-    ->fields('lq', array('id'))
-    ->condition('uid', $user->uid)
-    ->orderBy('id', 'DESC')
-    ->range(QUIZ_QUESTION_NUM_LATEST - 1, 1)
-    ->execute()
-    ->fetchField();
-
-  // Delete all table entries older than the nth row, if nth row was found.
-  if ($min_id) {
-    db_delete('quiz_question_latest_quizzes')
-      ->condition('id', $min_id, '<')
-      ->condition('uid', $user->uid)
-      ->execute();
-  }
-}
-
-/**
- * Removes a quiz from the quiz_question_latest_quizzes table.
- *
- * @param $qid
- *   ID of a quiz entity that shall be removed
- */
-function quiz_question_remove_latest_quizzes($qid) {
-  db_delete('quiz_question_latest_quizzes')->condition('quiz_qid', $qid)->execute();
+  return NULL !== $name ? $info[$name] : $info;
 }
 
 /**
@@ -372,7 +232,7 @@ function quiz_question_get_max_score($nid, $vid) {
  */
 function quiz_question_report_form($question) {
   $answer = $question->answers[0];
-  $response_instance = _quiz_question_response_get_instance($answer['result_id'], $question, $answer);
+  $response_instance = quiz_answer_controller()->getInstance($answer['result_id'], $question, $answer);
 
   // If need to specify the score weight if it isn't already specified.
   if (!isset($response_instance->question->score_weight)) {
@@ -443,11 +303,4 @@ function theme_quiz_question_feedback($variables) {
   $rows = $variables['data'];
   $headers = array_intersect_key($variables['labels'], $rows[0]);
   return theme('table', array('header' => $headers, 'rows' => $rows));
-}
-
-/**
- * Helper function to faciliate icon display, like "correct" or "selected".
- */
-function quiz_icon($icon) {
-  return theme('quiz_answer_result', array('type' => $icon));
 }

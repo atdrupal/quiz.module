@@ -112,17 +112,17 @@ class QuizFeedbackTestCase extends QuizTestCase {
     $this->linkQuestionToQuiz($question_node2, $quiz);
 
     // Set feedback.
-    $quiz_question = entity_load('quiz_question', FALSE, array('nid' => $question_node1->nid, 'vid' => $question_node1->vid));
+    $quiz_question = entity_load('quiz_question_properties', FALSE, array('nid' => $question_node1->nid, 'vid' => $question_node1->vid));
     $quiz_question = reset($quiz_question);
     $quiz_question->feedback = 'Feedback for TF test.';
     $quiz_question->feedback_format = filter_default_format();
-    entity_save('quiz_question', $quiz_question);
+    entity_save('quiz_question_properties', $quiz_question);
 
-    $quiz_question = entity_load('quiz_question', FALSE, array('nid' => $question_node2->nid, 'vid' => $question_node2->vid));
+    $quiz_question = entity_load('quiz_question_properties', FALSE, array('nid' => $question_node2->nid, 'vid' => $question_node2->vid));
     $quiz_question = reset($quiz_question);
     $quiz_question->feedback = 'Feedback for TF test.';
     $quiz_question->feedback_format = filter_default_format();
-    entity_save('quiz_question', $quiz_question);
+    entity_save('quiz_question_properties', $quiz_question);
 
     // Test
     $this->drupalLogin($this->user);

@@ -61,7 +61,7 @@ class FormSubmission extends TakingHelper {
       $question = node_load($question_id);
 
       // Delete the user's answer.
-      _quiz_question_response_get_instance($this->result->result_id, $question)
+      quiz_answer_controller()->getInstance($this->result->result_id, $question)
         ->delete();
 
       // Mark our question attempt as skipped, reset the correct and points flag.
@@ -108,7 +108,7 @@ class FormSubmission extends TakingHelper {
         }
 
         $_answer = $form_state['values']['question'][$question_id];
-        $qi_instance = _quiz_question_response_get_instance($this->result->result_id, $current_question, $_answer);
+        $qi_instance = quiz_answer_controller()->getInstance($this->result->result_id, $current_question, $_answer);
         $qi_instance->delete();
         $qi_instance->saveResult();
         $response = $qi_instance->toBareObject();
@@ -183,7 +183,7 @@ class FormSubmission extends TakingHelper {
 
       // Load the Quiz answer submission from the database.
       if (!$answer = quiz_answer_controller()->loadByResultAndQuestion($this->result->result_id, $qinfo['vid'])) {
-        $qi_instance = _quiz_question_response_get_instance($this->result->result_id, $current_question, NULL);
+        $qi_instance = quiz_answer_controller()->getInstance($this->result->result_id, $current_question, NULL);
         $qi_instance->delete();
         $response = $qi_instance->toBareObject();
         quiz_result_controller()

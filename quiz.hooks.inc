@@ -260,19 +260,6 @@ function quiz_node_presave($node) {
   if (($node->type === 'quiz') && !empty($node->aid) && $aid = actions_function_lookup($node->aid)) {
     $node->aid = $aid;
   }
-
-  if (isset($node->is_quiz_question) && variable_get('quiz_auto_revisioning', 1)) {
-    $node->revision = (quiz_question_has_been_answered($node)) ? 1 : 0;
-  }
-}
-
-/**
- * Implements hook_node_prepare().
- */
-function quiz_node_prepare($node) {
-  if (isset($node->is_quiz_question) && variable_get('quiz_auto_revisioning', 1)) {
-    $node->revision = (quiz_question_has_been_answered($node)) ? 1 : 0;
-  }
 }
 
 /**

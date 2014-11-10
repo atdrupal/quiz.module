@@ -27,19 +27,6 @@ function quiz_question_schema() {
       'indexes'     => array('question_id' => array('vid', 'nid')),
   );
 
-  $schema['quiz_question_latest_quizzes'] = array(
-      'description' => 'Stores the latest quizzes each user has been involved in.',
-      'fields'      => array(
-          'id'       => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
-          'quiz_qid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-          'uid'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-      ),
-      'primary key' => array('id'),
-  );
-
-//  $schema[] = array(
-//  );
-
   return $schema;
 }
 
@@ -47,7 +34,7 @@ function quiz_question_schema() {
  * Make the question body visible by default for the question view mode
  */
 function quiz_question_update_7401() {
-  foreach (array_keys(_quiz_question_get_implementations()) as $question_type) {
+  foreach (array_keys(quiz_question_get_info()) as $question_type) {
     $instance = field_read_instance('node', 'body', $question_type);
 
     $instance['display']['question'] = array(
@@ -89,4 +76,11 @@ function quiz_question_update_7500() {
 function quiz_question_update_7601() {
   $specs = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
   db_change_field('quiz_question_latest_quizzes', 'quiz_nid', 'quiz_qid', $specs);
+}
+
+/**
+ * Drop {quiz_question_latest_quizzes}.
+ */
+function quiz_question_update_7602() {
+  db_drop_table('quiz_question_latest_quizzes');
 }

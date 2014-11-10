@@ -23,11 +23,11 @@ class Stats {
     }
 
     return $select
-        ->fields('quiz', array('nid', 'vid', 'title', 'uid', 'created'))
+        ->fields('quiz', array('qid', 'vid', 'title', 'uid', 'created'))
         ->fields('u', array('name'))
         ->orderBy('quiz.qid')
         ->execute()
-        ->fetchAllAssoc('qid');
+        ->fetchAllAssoc('qid', \PDO::FETCH_ASSOC);
   }
 
   /**
@@ -75,7 +75,7 @@ class Stats {
    */
   public function countAllQuestions($quiz_vid) {
     $count_random = $this->countRandomQuestions($quiz_vid);
-    $count_always += $this->countAlwaysQuestions($quiz_vid);
+    $count_always = $this->countAlwaysQuestions($quiz_vid);
     return $count_random + $count_always;
   }
 

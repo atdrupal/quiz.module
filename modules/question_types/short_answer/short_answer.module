@@ -46,6 +46,7 @@ function short_answer_menu() {
       'type'             => MENU_NORMAL_ITEM,
       'file'             => 'short_answer.admin.inc',
   );
+
   // Pass vid and rid to this path.
   $items['admin/quiz/reports/score-short-answer/%/%'] = array(
       'title'            => 'Score short answer response',

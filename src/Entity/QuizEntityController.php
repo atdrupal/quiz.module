@@ -172,4 +172,17 @@ class QuizEntityController extends EntityAPIController {
     return $return;
   }
 
+  /**
+   * Get latest quiz ID, useful for test cases.
+   *
+   * @return int|null
+   */
+  public function getLatestQuizId() {
+    return db_select('quiz_entity', 'quiz')
+        ->fields('quiz', array('qid'))
+        ->orderBy('quiz.qid', 'DESC')
+        ->execute()
+        ->fetchColumn();
+  }
+
 }

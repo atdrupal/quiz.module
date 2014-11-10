@@ -17,11 +17,21 @@ class QuizEntityTestCase extends QuizTestCase {
   }
 
   function setUp($modules = array(), $admin_permissions = array(), $user_permissions = array()) {
-    $modules[] = 'quiz';
-    parent::setUp($modules);
+    $modules[] = 'truefalse';
+    parent::setUp($modules, $admin_permissions, $user_permissions);
   }
 
-  public function testInitQuizEntityType() {
+  /**
+   * Reduce runtime from 1m to ~30s.
+   */
+  public function testQuizEntityWrapper() {
+    $this->checkInitQuizEntityType();
+    $this->checkQuizEntity();
+    $this->checkQuizDefaults();
+    $this->checkQuizCreation();
+  }
+
+  private function checkInitQuizEntityType() {
     // Default quiz type.
     $types = entity_load('quiz_type', array('quiz'));
     $default_quiz_type = reset($types);
@@ -32,7 +42,7 @@ class QuizEntityTestCase extends QuizTestCase {
     entity_save('quiz_type', $quiz_type);
   }
 
-  public function testQuizEntity() {
+  private function checkQuizEntity() {
     // ---------------------
     // Create entity
     // ---------------------
@@ -89,21 +99,9 @@ class QuizEntityTestCase extends QuizTestCase {
   }
 
   /**
-   * Test basic quiz creation.
-   */
-  public function testQuizCreation() {
-    $this->drupalLogin($this->admin);
-    $this->drupalGet("quiz/add");
-    $this->drupalPost(NULL, array('title' => 'Test quiz creation'), t('Save'));
-    $this->drupalGet("quiz/1");
-    $this->assertText('Test quiz creation');
-    $this->assertText(t('Start !quiz', array('!quiz' => QUIZ_NAME)));
-  }
-
-  /**
    * Test system, global, and user defaults.
    */
-  public function testQuizDefaults() {
+  private function checkQuizDefaults() {
     // We need another admin user here.
     $admin_permissions = array();
     $admin_permissions[] = 'administer quiz configuration';
@@ -169,6 +167,18 @@ class QuizEntityTestCase extends QuizTestCase {
     $this->drupalGet('quiz/add');
     $this->assertNoFieldChecked('edit-allow-resume');
     $this->assertFieldChecked('edit-allow-skipping');
+  }
+
+  /**
+   * Test basic quiz creation.
+   */
+  private function checkQuizCreation() {
+    $this->drupalLogin($this->admin);
+    $this->drupalGet('quiz/add');
+    $this->drupalPost(NULL, array('title' => 'Test quiz creation'), t('Save'));
+    $this->drupalGet('quiz/' . quiz_controller()->getLatestQuizId());
+    $this->assertText('Test quiz creation');
+    $this->assertText(t('Start !quiz', array('!quiz' => QUIZ_NAME)));
   }
 
 }
