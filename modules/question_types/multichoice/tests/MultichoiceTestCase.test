@@ -103,7 +103,6 @@ class MultichoiceTestCase extends QuizQuestionTestCase {
    * Test multiple answers.
    */
   function testMultipleAnswers() {
-    $this->drupalLogin($this->admin);
     $question = $this->testCreateQuizQuestion(array('choice_multi' => 1));
     $quiz = $this->linkQuestionToQuiz($question);
 
