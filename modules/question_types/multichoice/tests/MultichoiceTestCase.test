@@ -80,8 +80,6 @@ class MultichoiceTestCase extends QuizQuestionTestCase {
   }
 
   public function testQuestionFeedback() {
-    $this->drupalLogin($this->admin);
-
     $question = $this->testCreateQuizQuestion();
     $quiz = $this->linkQuestionToQuiz($question);
 
