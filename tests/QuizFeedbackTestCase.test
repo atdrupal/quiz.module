@@ -24,7 +24,6 @@ class QuizFeedbackTestCase extends QuizTestCase {
    * returned from that question type.
    */
   public function testAnswerFeedback() {
-    $this->drupalLogin($this->admin);
     $quiz = $this->drupalCreateQuiz();
 
     // 3 questions.
@@ -45,7 +44,6 @@ class QuizFeedbackTestCase extends QuizTestCase {
     );
 
     $this->drupalLogin($this->user);
-
     $this->checkAfterQuestion($quiz, $question_node1, $review_options);
     $this->checkAfterQuiz($quiz, $question_node2, $review_options);
   }
@@ -96,8 +94,6 @@ class QuizFeedbackTestCase extends QuizTestCase {
    * Test general Quiz question feedback.
    */
   public function testQuestionFeedback() {
-    $this->drupalLogin($this->admin);
-
     // Turn on question feedback at the end.
     $quiz = $this->drupalCreateQuiz(
       array(
