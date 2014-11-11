@@ -25,14 +25,14 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test case insensitive graded questions.
    */
   public function testGradeAnswerInsensitive() {
+    // Login as our privileged user.
+    $this->drupalLogin($this->admin);
+
     $question_node = $this->testCreateQuizQuestion(array(
         'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_INSENSITIVE_MATCH,
         'correct_answer'            => 'the Zero One Infinity rule',
     ));
     $quiz = $this->linkQuestionToQuiz($question_node);
-
-    // Login and start quiz taking
-    $this->drupalLogin($this->usser);
 
     // Test incorrect.
     $this->drupalGet("quiz/$quiz->qid/take");
@@ -54,6 +54,9 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test case sensitive graded questions.
    */
   public function testGradeAnswerSensitive() {
+    // Login as our privileged user.
+    $this->drupalLogin($this->admin);
+
     $quiz = $this->drupalCreateQuiz(array(
         'review_options' => array('end' => array('score' => 'score')),
     ));
@@ -79,6 +82,8 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test regex graded questions.
    */
   public function testGradeAnswerRegex() {
+    $this->drupalLogin($this->admin);
+
     $quiz = $this->drupalCreateQuiz();
 
     $question_node = $this->testCreateQuizQuestion(array(
@@ -106,6 +111,8 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * correctly.
    */
   public function testGradeAnswerManualFeedback() {
+    $this->drupalLogin($this->admin);
+
     $quiz = $this->drupalCreateQuiz();
 
     $question_node1 = $this->testCreateQuizQuestion(array(
@@ -141,7 +148,6 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->drupalGet($url_of_result);
     $this->assertFieldByName('0[score]');
     $this->assertFieldByName('1[score]');
-
     // Admin has to provide feedback.
     $this->drupalLogin($this->admin);
     $this->drupalGet($url_of_result);
