@@ -49,6 +49,7 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
     $qq->saveRelationships();
 
     // Test that question appears in lists.
+    $this->drupalLogin($this->admin);
     $this->drupalGet("quiz/$quiz->qid/questions");
     $this->assertText('TF 1 title');
 

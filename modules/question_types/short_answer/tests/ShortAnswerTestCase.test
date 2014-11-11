@@ -25,14 +25,14 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test case insensitive graded questions.
    */
   public function testGradeAnswerInsensitive() {
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
-
     $question_node = $this->testCreateQuizQuestion(array(
         'correct_answer_evaluation' => ShortAnswerQuestion::ANSWER_INSENSITIVE_MATCH,
         'correct_answer'            => 'the Zero One Infinity rule',
     ));
     $quiz = $this->linkQuestionToQuiz($question_node);
+
+    // Login as our privileged user.
+    $this->drupalLogin($this->user);
 
     // Test incorrect.
     $this->drupalGet("quiz/$quiz->qid/take");
@@ -54,9 +54,6 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test case sensitive graded questions.
    */
   public function testGradeAnswerSensitive() {
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
-
     $quiz = $this->drupalCreateQuiz(array(
         'review_options' => array('end' => array('score' => 'score')),
     ));
@@ -66,6 +63,9 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
         'correct_answer'            => 'the Zero One Infinity rule',
     ));
     $this->linkQuestionToQuiz($question_node, $quiz);
+
+    // Login as non-admin
+    $this->drupalLogin($this->user);
 
     // Test incorrect.
     $this->drupalGet("quiz/$quiz->qid/take");
@@ -82,8 +82,6 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * Test regex graded questions.
    */
   public function testGradeAnswerRegex() {
-    $this->drupalLogin($this->admin);
-
     $quiz = $this->drupalCreateQuiz();
 
     $question_node = $this->testCreateQuizQuestion(array(
@@ -111,8 +109,6 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
    * correctly.
    */
   public function testGradeAnswerManualFeedback() {
-    $this->drupalLogin($this->admin);
-
     $quiz = $this->drupalCreateQuiz();
 
     $question_node1 = $this->testCreateQuizQuestion(array(
@@ -143,14 +139,11 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
     $this->assertNoRaw(t('Save score'));
     $url_of_result = $this->getUrl();
 
-    // Test grading the question.
+    // Test grading the question, provide feedback.
     $this->drupalLogin($this->admin);
     $this->drupalGet($url_of_result);
     $this->assertFieldByName('0[score]');
     $this->assertFieldByName('1[score]');
-    // Admin has to provide feedback.
-    $this->drupalLogin($this->admin);
-    $this->drupalGet($url_of_result);
     $this->drupalPost(NULL, array(
         "0[score]"                   => 2,
         "1[score]"                   => 3,
@@ -183,9 +176,6 @@ class ShortAnswerTestCase extends QuizQuestionTestCase {
           'correct_answer'            => 'SA 1 correct answer.',
       );
     }
-
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
 
     $question_node = $this->drupalCreateNode(array(
         'type'  => $this->question_node_type,
