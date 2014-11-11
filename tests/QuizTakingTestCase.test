@@ -17,7 +17,6 @@ class QuizTakingTestCase extends QuizTestCase {
    * of feedback shows here, that is tested elsewhere.
    */
   public function testQuestionRepeatUntilCorrect() {
-    $this->drupalLogin($this->admin);
     $quiz = $this->drupalCreateQuiz(array(
         'repeat_until_correct' => 1,
         'review_options'       => array('question' => array('answer_feedback' => 'answer_feedback')),
@@ -103,7 +102,6 @@ class QuizTakingTestCase extends QuizTestCase {
    * Test the 'view quiz question outside of a quiz' permission.
    */
   function testViewQuestionsOutsideQuiz() {
-    $this->drupalLogin($this->admin);
     // Resuming is default behavior.
     $quiz = $this->drupalCreateQuiz();
 
