@@ -22,11 +22,10 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
 
   /**
    * Test adding and taking a truefalse question.
+   *
+   * @TODO: This is helper (internal) method, not a test case.
    */
   function testCreateQuizQuestion() {
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
-
     $question_node = $this->drupalCreateNode(array(
         'type'           => 'truefalse',
         'title'          => 'TF 1 title',
