@@ -79,9 +79,6 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
   }
 
   function testQuestionFeedback() {
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
-
     // Create the quiz and question.
     $question_node = $this->testCreateQuizQuestion();
 
