@@ -78,19 +78,16 @@ class TrueFalseTestCase extends QuizQuestionTestCase {
   }
 
   function testQuestionFeedback() {
-    // Login as our privileged user.
-    $this->drupalLogin($this->admin);
-
     // Create the quiz and question.
     $question_node = $this->testCreateQuizQuestion();
 
     // Link the question.
     $quiz = $this->linkQuestionToQuiz($question_node);
 
-    // Test incorrect question with all feedbacks on.
     // Login as non-admin.
     $this->drupalLogin($this->user);
-    // Take the quiz.
+
+    // Test incorrect question with all feedbacks on.
     $this->drupalGet("quiz/$quiz->qid/take");
     $this->drupalPost(NULL, array("question[$question_node->nid]" => 1), t('Finish'));
     $this->assertRaw('quiz-score-icon correct');
