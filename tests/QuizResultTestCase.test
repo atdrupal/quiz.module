@@ -89,8 +89,6 @@ class QuizResultTestCase extends QuizTestCase {
    * Test access to results.
    */
   function testQuizResultAccess() {
-    $this->drupalLogin($this->admin);
-
     $question_node = $this->drupalCreateNode(array('type' => 'truefalse', 'correct_answer' => 1));
     $quiz = $this->linkQuestionToQuiz($question_node);
 
