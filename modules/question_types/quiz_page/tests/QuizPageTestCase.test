@@ -22,8 +22,6 @@ class QuizPageTestCase extends QuizQuestionTestCase {
    * Test that question parentage saves.
    */
   function testQuizPageParentage() {
-    $this->drupalLogin($this->admin);
-
     // Create Quiz with review of score.
     $quiz = $this->drupalCreateQuiz();
 
@@ -42,6 +40,7 @@ class QuizPageTestCase extends QuizQuestionTestCase {
     $this->linkQuestionToQuiz($page_node2, $quiz);
 
     // Go to the manage questions form.
+    $this->drupalLogin($this->admin);
     $this->drupalGet("quiz/$quiz->qid/questions");
     $post = array(
       // Make the questions have parents.
