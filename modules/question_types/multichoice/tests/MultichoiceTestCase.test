@@ -143,7 +143,6 @@ class MultichoiceTestCase extends QuizQuestionTestCase {
    * Test simple scoring.
    */
   function testSimpleScoring() {
-    $this->drupalLogin($this->admin);
     $settings = array();
     $settings['alternatives'][1]['score_if_chosen'] = 0;
     $settings['alternatives'][1]['score_if_not_chosen'] = 0;
