@@ -19,7 +19,6 @@ class QuizNavigationTestCase extends QuizTestCase {
    * Test the question navigation and access.
    */
   public function testQuestionNavigationBasic() {
-    $this->drupalLogin($this->admin);
     $quiz = $this->drupalCreateQuiz();
 
     // 5 questions.
@@ -53,7 +52,6 @@ class QuizNavigationTestCase extends QuizTestCase {
    * Test that all questions are available when quiz jumping is on.
    */
   function testQuestionNavigationJumping() {
-    $this->drupalLogin($this->admin);
     $quiz = $this->drupalCreateQuiz(array('allow_jumping' => 1));
 
     // 5 questions.
@@ -101,7 +99,6 @@ class QuizNavigationTestCase extends QuizTestCase {
    * Test that a user can skip a question.
    */
   function testQuestionNavigationSkipping() {
-    $this->drupalLogin($this->admin);
     // Default behavior, anyway.
     $quiz = $this->drupalCreateQuiz(array('allow_skipping' => 1));
 
@@ -137,7 +134,6 @@ class QuizNavigationTestCase extends QuizTestCase {
    * Test preventing backwards navigation of questions.
    */
   function testQuestionNavigationBackwards() {
-    $this->drupalLogin($this->admin);
     $quiz = $this->drupalCreateQuiz(array(
         'backwards_navigation' => 0,
         'allow_skipping'       => 0,
