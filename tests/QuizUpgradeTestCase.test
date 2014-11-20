@@ -4,16 +4,7 @@ abstract class QuizUpgradeBaseTestCase extends UpdatePathTestCase {
 
   protected static $testDumpFile = '…';
   protected static $dependencies = array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations', 'xautoload');
-  protected static $testName = 'Quiz upgrade';
   protected static $testDescription = 'Test an upgrade from various Quiz versions.';
-
-  public static function getInfo() {
-    return array(
-        'name'        => static::$testName,
-        'description' => static::$testDescription,
-        'group'       => t('Quiz'),
-    );
-  }
 
   public function setUp() {
     $this->databaseDumpFiles = array(drupal_get_path('module', 'quiz') . '/tests/upgrade/' . static::$testDumpFile);
@@ -30,14 +21,28 @@ abstract class QuizUpgradeBaseTestCase extends UpdatePathTestCase {
 
 class QuizUpgradeFrom7x4xBeta2TestCase extends QuizUpgradeBaseTestCase {
 
-  protected static $testName = 'Quiz upgrade from 7.x-4.x';
   protected static $testDumpFile = 'quiz-4x-beta2.php.gz';
+
+  public static function getInfo() {
+    return array(
+        'name'        => 'Quiz upgrade from 7.x-4.x',
+        'description' => static::$testDescription,
+        'group'       => t('Quiz'),
+    );
+  }
 
 }
 
 class QuizUpgradeFrom7x5xTestCase extends QuizUpgradeBaseTestCase {
 
-  protected static $testName = 'Quiz upgrade from 7.x-5.x';
   protected static $testDumpFile = 'quiz-5x.php.gz';
+
+  public static function getInfo() {
+    return array(
+        'name'        => 'Quiz upgrade from 7.x-5.x',
+        'description' => static::$testDescription,
+        'group'       => t('Quiz'),
+    );
+  }
 
 }
