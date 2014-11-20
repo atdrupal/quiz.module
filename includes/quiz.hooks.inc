@@ -278,7 +278,7 @@ function quiz_quiz_scored($quiz, $score, $result_id) {
 /**
  * Workaround for menu_translate bug.
  */
-function question_number_to_arg() {
+function quiz_question_number_to_arg() {
   return 0;
 }
 

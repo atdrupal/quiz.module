@@ -172,14 +172,14 @@ class QuizUIController extends EntityDefaultUIController {
         'page arguments'   => array(1, 3),
     );
 
-    $items['quiz/%quiz/take/%question_number/feedback'] = array(
+    $items['quiz/%quiz/take/%quiz_question_number/feedback'] = array(
         'title'            => 'Feedback',
+        'access callback'  => 'quiz_question_feedback_access',
+        'access arguments' => array(1, 3),
         'file path'        => drupal_get_path('module', 'quiz'),
         'file'             => 'quiz.pages.inc',
         'page callback'    => 'quiz_question_feedback_page',
         'page arguments'   => array(1, 3),
-        'access callback'  => 'quiz_question_feedback_access',
-        'access arguments' => array(1, 3),
     );
   }
 
