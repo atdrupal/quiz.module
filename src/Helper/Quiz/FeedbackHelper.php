@@ -5,25 +5,6 @@ namespace Drupal\quiz\Helper\Quiz;
 class FeedbackHelper {
 
   /**
-   * Get the feedback options for Quizzes.
-   */
-  public function getOptions() {
-    $feedback_options = array(
-        'attempt'           => t('Attempt'),
-        'correct'           => t('Whether correct'),
-        'score'             => t('Score'),
-        'answer_feedback'   => t('Answer feedback'),
-        'question_feedback' => t('Question feedback'),
-        'solution'          => t('Correct answer'),
-        'quiz_feedback'     => t('@quiz feedback', array('@quiz' => QUIZ_NAME)),
-    );
-
-    drupal_alter('quiz_feedback_options', $feedback_options);
-
-    return $feedback_options;
-  }
-
-  /**
    * Menu access check for question feedback.
    */
   public function canAccess($quiz, $page_number) {
