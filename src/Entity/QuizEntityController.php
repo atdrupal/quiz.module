@@ -80,8 +80,8 @@ class QuizEntityController extends EntityAPIController {
     // Render take button
     if ($extra_fields['take']['visible']) {
       $markup = l(t('Start @quiz', array('@quiz' => QUIZ_NAME)), 'quiz/' . $quiz->qid . '/take');
-      if (TRUE !== $quiz->isAvailable($user)) {
-        $markup = t('This @quiz is not available.', array('@quiz' => QUIZ_NAME));
+      if (TRUE !== $checking = $quiz->isAvailable($user)) {
+        $markup = $checking;
       }
 
       $content['quiz_entity'][$quiz->qid]['take'] = array(
