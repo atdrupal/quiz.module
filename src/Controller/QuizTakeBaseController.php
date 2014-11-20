@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\quiz\Helper\Quiz;
+namespace Drupal\quiz\Controller;
 
 use Drupal\quiz\Entity\QuizEntity;
 
-class TakingHelper {
+class QuizTakeBaseController {
 
   /**
    * Update the session for this quiz to the active question.

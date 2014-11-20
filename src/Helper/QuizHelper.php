@@ -6,14 +6,12 @@ use Drupal\quiz\Entity\QuizEntity;
 use Drupal\quiz\Helper\Quiz\AccessHelper;
 use Drupal\quiz\Helper\Quiz\FeedbackHelper;
 use Drupal\quiz\Helper\Quiz\TakeJumperHelper;
-use Drupal\quiz\Helper\Quiz\TakingHelper;
 
 class QuizHelper {
 
   private $accessHelper;
   private $feedbackHelper;
   private $takeJumperHelper;
-  private $questionHelper;
 
   /**
    * @return AccessHelper
@@ -57,21 +55,6 @@ class QuizHelper {
 
   public function setTakeJumperHelper($takeJumperHelper) {
     $this->takeJumperHelper = $takeJumperHelper;
-    return $this;
-  }
-
-  /**
-   * @return TakingHelper
-   */
-  public function getQuestionHelper() {
-    if (null === $this->questionHelper) {
-      $this->questionHelper = new TakingHelper();
-    }
-    return $this->questionHelper;
-  }
-
-  public function setQuestionHelper($questionHelper) {
-    $this->questionHelper = $questionHelper;
     return $this;
   }
 

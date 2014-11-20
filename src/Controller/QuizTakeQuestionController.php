@@ -3,9 +3,9 @@
 namespace Drupal\quiz\Controller;
 
 use Drupal\quiz\Entity\Result;
-use Drupal\quiz\Helper\Quiz\TakingHelper;
+use Drupal\quiz\Controller\QuizTakeBaseController;
 
-class QuizTakeQuestionController extends TakingHelper {
+class QuizTakeQuestionController extends QuizTakeBaseController {
 
   private $quiz;
   private $question;

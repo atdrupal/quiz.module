@@ -4,9 +4,9 @@ namespace Drupal\quiz\Form\QuizAnsweringForm;
 
 use Drupal\quiz\Entity\QuizEntity;
 use Drupal\quiz\Entity\Result;
-use Drupal\quiz\Helper\Quiz\TakingHelper;
+use Drupal\quiz\Controller\QuizTakeBaseController;
 
-class FormSubmission extends TakingHelper {
+class FormSubmission extends QuizTakeBaseController {
 
   private $quiz;
   private $quiz_id;
