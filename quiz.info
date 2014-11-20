@@ -40,6 +40,4 @@ files[] = tests/QuizRandomTestCase.test
 files[] = tests/QuizResultTestCase.test
 files[] = tests/QuizTakingTestCase.test
 files[] = tests/QuizTimerTestCase.test
-
-; Being failed, test this later
-; files[] = tests/QuizUpgradeTestCase.test
+files[] = tests/QuizUpgradeTestCase.test

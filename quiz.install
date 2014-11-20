@@ -494,7 +494,7 @@ function quiz_update_7604() {
  * Clean up data of when quiz was node.
  */
 function quiz_update_7605() {
-  # db_drop_table('quiz_node_properties');
+  db_drop_table('quiz_node_properties');
   # delete all quiz nodes?
   # delete quiz node type?
 
