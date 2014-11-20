@@ -216,7 +216,7 @@ class QuestionIO {
   public function setQuestions(array $relationships, $set_new_revision = FALSE) {
     // Create a new Quiz VID, even if nothing changed.
     if ($set_new_revision) {
-      $this->quiz->is_new_revision = 1;
+      $this->quiz->is_new_revision = TRUE;
       $this->quiz->save();
     }
 
