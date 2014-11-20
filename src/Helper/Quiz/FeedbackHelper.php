@@ -28,26 +28,16 @@ class FeedbackHelper {
   /**
    * Menu access check for question feedback.
    */
-  public function canAccess($quiz, $question_number) {
-    if ($question_number <= 0) {
+  public function canAccess($quiz, $page_number) {
+    if ($page_number <= 0 || !array_filter($quiz->review_options['question'])) {
       return FALSE;
     }
 
-    if (array_filter($quiz->review_options['question'])) {
-      $question_index = $question_number;
-      if (empty($_SESSION['quiz'][$quiz->qid]['result_id'])) {
-        $result_id = $_SESSION['quiz']['temp']['result_id'];
-      }
-      else {
-        $result_id = $_SESSION['quiz'][$quiz->qid]['result_id'];
-      }
-      $quiz_result = quiz_result_load($result_id);
-      $qinfo = $quiz_result->layout[$question_index];
+    $result_id = empty($_SESSION['quiz'][$quiz->qid]['result_id']) ? $_SESSION['quiz']['temp']['result_id'] : $_SESSION['quiz'][$quiz->qid]['result_id'];
+    $result = quiz_result_load($result_id);
 
-      if (quiz_answer_controller()->loadByResultAndQuestion($result_id, $qinfo['vid'])) {
-        return TRUE;
-      }
-    }
+    return quiz_answer_controller()
+        ->loadByResultAndQuestion($result_id, $result->layout[$page_number]['vid']);
   }
 
 }
