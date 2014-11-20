@@ -33,11 +33,4 @@ files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question_type.i
 files[] = includes/views/handlers/quiz_views_handler_filter_quiz_question.inc
 
 files[] = tests/QuizTestCase.php
-files[] = tests/QuizEntityTestCase.php
-files[] = tests/QuizFeedbackTestCase.php
-files[] = tests/QuizNavigationTestCase.php
-files[] = tests/QuizRandomTestCase.php
-files[] = tests/QuizResultTestCase.php
-files[] = tests/QuizTakingTestCase.php
-files[] = tests/QuizTimerTestCase.php
-files[] = tests/QuizUpgradeTestCase.php
+files[] = tests/QuizUpgradeBaseTestCase.php

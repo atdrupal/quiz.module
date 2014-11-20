@@ -18,31 +18,3 @@ abstract class QuizUpgradeBaseTestCase extends UpdatePathTestCase {
   }
 
 }
-
-class QuizUpgradeFrom7x4xBeta2TestCase extends QuizUpgradeBaseTestCase {
-
-  protected static $testDumpFile = 'quiz-4x-beta2.php.gz';
-
-  public static function getInfo() {
-    return array(
-        'name'        => 'Quiz upgrade from 7.x-4.x',
-        'description' => static::$testDescription,
-        'group'       => 'Quiz upgrade',
-    );
-  }
-
-}
-
-class QuizUpgradeFrom7x5xTestCase extends QuizUpgradeBaseTestCase {
-
-  protected static $testDumpFile = 'quiz-5x.php.gz';
-
-  public static function getInfo() {
-    return array(
-        'name'        => 'Quiz upgrade from 7.x-5.x',
-        'description' => static::$testDescription,
-        'group'       => 'Quiz upgrade',
-    );
-  }
-
-}
