@@ -7,6 +7,11 @@ class HookFieldExtraFields {
   public function execute() {
     $extra = array();
 
+    // User comes from old version, there's no quiz type yet
+    if (!db_table_exists('quiz_entity')) {
+      return $extra;
+    }
+
     if ($types = quiz_get_types()) {
       foreach (array_keys($types) as $name) {
         $extra['quiz_entity'][$name] = array(

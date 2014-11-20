@@ -88,6 +88,11 @@ function quiz_question_menu_local_tasks_alter(&$data, $router_item, $root_path) 
 function quiz_question_entity_info() {
   $info = array();
 
+  // User may come from old version, where the table is not available yet
+  if (!db_table_exists('quiz_question_type')) {
+    return $info;
+  }
+
   $info['quiz_question_type'] = array(
       'label'            => t('Question type'),
       'plural label'     => t('Question types'),

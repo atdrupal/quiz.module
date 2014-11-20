@@ -5,6 +5,12 @@ namespace Drupal\quiz\Helper\HookImplementation;
 class HookEntityInfo {
 
   public function execute() {
+    // User comes from old version, there's no table defined yet. Must upgrade
+    // schema first.
+    if (!db_table_exists('quiz_type')) {
+      return array();
+    }
+
     return array(
         'quiz_type'                  => $this->getQuizEntityTypeInfo(),
         'quiz_entity'                => $this->getQuizEntityInfo(),
@@ -64,17 +70,20 @@ class HookEntityInfo {
         ),
     );
 
-    // Add bundle info but bypass entity_load() as we cannot use it here.
-    foreach (db_select('quiz_type', 'qt')->fields('qt')->execute()->fetchAllAssoc('type') as $type => $info) {
-      $entity_info['bundles'][$type] = array(
-          'label' => $info->label,
-          'admin' => array(
-              'path'             => 'admin/structure/quiz/manage/%quiz_type',
-              'real path'        => 'admin/structure/quiz/manage/' . $type,
-              'bundle argument'  => 4,
-              'access arguments' => array('administer quiz'),
-          ),
-      );
+    // User may come from 4.x, where the table is not available yet
+    if (db_table_exists('quiz_type')) {
+      // Add bundle info but bypass entity_load() as we cannot use it here.
+      foreach (db_select('quiz_type', 'qt')->fields('qt')->execute()->fetchAllAssoc('type') as $type => $info) {
+        $entity_info['bundles'][$type] = array(
+            'label' => $info->label,
+            'admin' => array(
+                'path'             => 'admin/structure/quiz/manage/%quiz_type',
+                'real path'        => 'admin/structure/quiz/manage/' . $type,
+                'bundle argument'  => 4,
+                'access arguments' => array('administer quiz'),
+            ),
+        );
+      }
     }
 
     // Support entity cache module.
