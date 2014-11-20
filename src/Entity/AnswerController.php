@@ -17,7 +17,7 @@ class AnswerController extends EntityAPIController {
    * @return Answer
    */
   public function loadByResultAndQuestion($result_id, $question_vid) {
-    $conditions = array(':result_id' => $result_id, ':vid' => $question_vid);
+    $conditions = array('result_id' => $result_id, 'vid' => $question_vid);
     if ($return = entity_load('quiz_result_answer', FALSE, $conditions)) {
       return reset($return);
     }
