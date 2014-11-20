@@ -56,6 +56,25 @@ class QuizEntityController extends EntityAPIController {
   }
 
   /**
+   * Get the feedback options for Quizzes.
+   */
+  public function getFeedbackOptions() {
+    $feedback_options = array(
+        'attempt'           => t('Attempt'),
+        'correct'           => t('Whether correct'),
+        'score'             => t('Score'),
+        'answer_feedback'   => t('Answer feedback'),
+        'question_feedback' => t('Question feedback'),
+        'solution'          => t('Correct answer'),
+        'quiz_feedback'     => t('@quiz feedback', array('@quiz' => QUIZ_NAME)),
+    );
+
+    drupal_alter('quiz_feedback_options', $feedback_options);
+
+    return $feedback_options;
+  }
+
+  /**
    * @param QuizEntity $quiz
    */
   public function buildContent($quiz, $view_mode = 'full', $langcode = NULL, $content = array()) {
