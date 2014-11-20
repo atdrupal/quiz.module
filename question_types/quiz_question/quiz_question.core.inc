@@ -330,33 +330,37 @@ abstract class QuizQuestion {
 
   /**
    * Save this Question to the specified Quiz.
+   * @param int $quiz_nid
+   * @param int $quiz_vid
+   * @return bool
+   *  TRUE if relationship is made.
    */
-  function saveRelationships() {
-    if (empty($this->node->quiz_nid) || empty($this->node->quiz_vid)) {
-      return;
+  function saveRelationships($quiz_nid = NULL, $quiz_vid = NULL) {
+    $quiz_nid = isset($this->node->quiz_nid) ? $this->node->quiz_nid : $quiz_nid;
+    $quiz_vid = isset($this->node->quiz_vid) ? $this->node->quiz_vid : $quiz_vid;
+    if (!$quiz_nid || !$quiz_vid || !$quiz_node = node_load($quiz_nid, $quiz_vid)) {
+      return FALSE;
     }
 
-    $quiz_node = node_load($this->node->quiz_nid, $this->node->quiz_vid);
-
+    // We need to revise the quiz node if it has been answered
     if (quiz_has_been_answered($quiz_node)) {
-      // We need to revise the quiz node if it has been answered
       $quiz_node->revision = 1;
       $quiz_node->auto_created = TRUE;
       node_save($quiz_node);
       drupal_set_message(t('New revision has been created for the @quiz %n', array('%n' => $quiz_node->title, '@quiz' => QUIZ_NAME)));
     }
 
-    $insert_values = array();
-    $insert_values['parent_nid'] = $quiz_node->nid;
-    $insert_values['parent_vid'] = $quiz_node->vid;
-    $insert_values['child_nid'] = $this->node->nid;
-    $insert_values['child_vid'] = $this->node->vid;
-    $insert_values['max_score'] = $this->getMaximumScore();
-    $insert_values['auto_update_max_score'] = $this->autoUpdateMaxScore() ? 1 : 0;
-    $insert_values['weight'] = 1 + db_query('SELECT MAX(weight) FROM {quiz_node_relationship} WHERE parent_vid = :vid', array(':vid' => $quiz_node->vid))->fetchField();
+    $values = array();
+    $values['parent_nid'] = $quiz_nid;
+    $values['parent_vid'] = $quiz_vid;
+    $values['child_nid'] = $this->node->nid;
+    $values['child_vid'] = $this->node->vid;
+    $values['max_score'] = $this->getMaximumScore();
+    $values['auto_update_max_score'] = $this->autoUpdateMaxScore() ? 1 : 0;
+    $values['weight'] = 1 + db_query('SELECT MAX(weight) FROM {quiz_node_relationship} WHERE parent_vid = :vid', array(':vid' => $quiz_node->vid))->fetchField();
     $randomization = db_query('SELECT randomization FROM {quiz_node_properties} WHERE nid = :nid AND vid = :vid', array(':nid' => $quiz_node->nid, ':vid' => $quiz_node->vid))->fetchField();
-    $insert_values['question_status'] = $randomization == 2 ? QUESTION_RANDOM : QUESTION_ALWAYS;
-    entity_create('quiz_question_relationship', $insert_values)->save();
+    $values['question_status'] = $randomization == 2 ? QUESTION_RANDOM : QUESTION_ALWAYS;
+    entity_create('quiz_question_relationship', $values)->save();
 
     // Update max_score for relationships if auto update max score is enabled
     // for question
@@ -376,6 +380,8 @@ abstract class QuizQuestion {
 
     quiz_update_max_score_properties($quizzes_to_update);
     quiz_update_max_score_properties(array($quiz_node->vid));
+
+    return TRUE;
   }
 
   /**
