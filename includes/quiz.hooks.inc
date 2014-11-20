@@ -429,6 +429,14 @@ function quiz_type_confirm($node, $op = NULL) {
 /**
  * Menu access check for question feedback.
  */
-function quiz_question_feedback_access($quiz, $question_number) {
-  return (bool) quiz()->getQuizHelper()->getFeedbackHelper()->canAccess($quiz, $question_number);
+function quiz_question_feedback_access($quiz, $page_number) {
+  if (($page_number <= 0) || !array_filter($quiz->review_options['question'])) {
+    return FALSE;
+  }
+
+  $result_id = empty($_SESSION['quiz'][$quiz->qid]['result_id']) ? $_SESSION['quiz']['temp']['result_id'] : $_SESSION['quiz'][$quiz->qid]['result_id'];
+  $result = quiz_result_load($result_id);
+  $question_vid = $result->layout[$page_number]['vid'];
+
+  return quiz_answer_controller()->loadByResultAndQuestion($result_id, $question_vid);
 }

@@ -2,15 +2,12 @@
 
 namespace Drupal\quiz\Helper;
 
-use Drupal\quiz\Entity\QuizEntity;
 use Drupal\quiz\Helper\Quiz\AccessHelper;
-use Drupal\quiz\Helper\Quiz\FeedbackHelper;
 use Drupal\quiz\Helper\Quiz\TakeJumperHelper;
 
 class QuizHelper {
 
   private $accessHelper;
-  private $feedbackHelper;
   private $takeJumperHelper;
 
   /**
@@ -25,21 +22,6 @@ class QuizHelper {
 
   public function setAccessHelper($accessHelper) {
     $this->accessHelper = $accessHelper;
-    return $this;
-  }
-
-  /**
-   * @return FeedbackHelper
-   */
-  public function getFeedbackHelper() {
-    if (null === $this->feedbackHelper) {
-      $this->feedbackHelper = new FeedbackHelper();
-    }
-    return $this->feedbackHelper;
-  }
-
-  public function setFeedbackHelper($feedbackHelper) {
-    $this->feedbackHelper = $feedbackHelper;
     return $this;
   }
 
