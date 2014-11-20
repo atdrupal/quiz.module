@@ -41,7 +41,7 @@ class HookEntityInfo {
         'label'                     => QUIZ_NAME,
         'description'               => t('!quiz entity', array('!quiz' => QUIZ_NAME)),
         'entity class'              => 'Drupal\quiz\Entity\QuizEntity',
-        'controller class'          => 'Drupal\quiz\Entity\QuizEntityController',
+        'controller class'          => 'Drupal\quiz\Entity\QuizController',
         'metadata controller class' => 'Drupal\quiz\Entity\QuizMetadataController',
         'views controller class'    => 'Drupal\quiz\Entity\QuizViewsController',
         'base table'                => 'quiz_entity',

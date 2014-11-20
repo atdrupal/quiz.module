@@ -70,7 +70,7 @@ class QuizEntity extends Entity {
   }
 
   /**
-   * @return \Drupal\quiz\Entity\QuizEntityController
+   * @return \Drupal\quiz\Entity\QuizController
    */
   public function getController() {
     return quiz_controller();
