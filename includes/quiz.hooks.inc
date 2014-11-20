@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\quiz\Entity\QuizEntity;
+use Drupal\quiz\Entity\Result;
+
 /**
  * @file
  * Quiz hook implementations and helper functions (not API).
@@ -318,7 +321,7 @@ function quiz_access_multi_or() {
 /**
  * Helper function to determine if a user has access to view a specific quiz result.
  *
- * @param \Drupal\quiz\Entity\Result|int $result
+ * @param Result|int $result
  * @return boolean
  *  True if access, false otherwise
  */
@@ -428,8 +431,11 @@ function quiz_type_confirm($node, $op = NULL) {
 
 /**
  * Menu access check for question feedback.
+ * @param QuizEntity $quiz
+ * @param int $page_number
+ * @return boolean
  */
-function quiz_question_feedback_access($quiz, $page_number) {
+function quiz_question_feedback_access(QuizEntity $quiz, $page_number) {
   if (($page_number <= 0) || !array_filter($quiz->review_options['question'])) {
     return FALSE;
   }
@@ -438,5 +444,5 @@ function quiz_question_feedback_access($quiz, $page_number) {
   $result = quiz_result_load($result_id);
   $question_vid = $result->layout[$page_number]['vid'];
 
-  return quiz_answer_controller()->loadByResultAndQuestion($result_id, $question_vid);
+  return (bool) quiz_answer_controller()->loadByResultAndQuestion($result_id, $question_vid);
 }
