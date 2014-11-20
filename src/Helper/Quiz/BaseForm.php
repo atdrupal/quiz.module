@@ -4,12 +4,6 @@ namespace Drupal\quiz\Helper\Quiz;
 
 abstract class BaseForm {
 
-  public static function staticGet($form, $form_state, $quiz) {
-    module_load_include('pages.inc', 'quiz', 'quiz');
-    $obj = new static();
-    return $obj->formGet($form, $form_state, $quiz);
-  }
-
   /**
    * Adds checkbox for creating new revision. Checks it by default if answers exists.
    *
