@@ -10,7 +10,7 @@ use Drupal\quiz\Entity\QuizEntity\Stats;
 use EntityAPIController;
 use stdClass;
 
-class QuizEntityController extends EntityAPIController {
+class QuizController extends EntityAPIController {
 
   /** @var DefaultPropertiesIO */
   private $default_properties_io;
