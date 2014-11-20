@@ -381,12 +381,13 @@ function quiz_update_7602() {
   // migrate basic quiz
   $select = db_select('node', 'n');
   $select->innerJoin('node_revision', 'r', 'n.nid = r.nid');
-  $select->fields('r', array('nid', 'vid', 'uid', 'title', 'log', 'timestamp'));
-  $select->fields('n', array('created'));
+  $select->fields('r', array('nid', 'vid', 'uid', 'title', 'log', 'timestamp', 'status'));
+  $select->fields('n', array('created', 'type'));
   $select->condition('n.type', 'quiz');
   $select->orderBy('r.vid', 'ASC');
-  $result = $select->execute();
-  while ($row = $result->fetchAll()) {
+  $results = $select->execute()->fetchAll();
+
+  foreach ($results as $row) {
     _quiz_update_7602($row);
   }
 }
@@ -398,7 +399,7 @@ function quiz_update_7602() {
  */
 function _quiz_update_7602($row) {
   // find quiz revision
-  if ($quiz_id = db_query('SELECT qid FROM {quiz_entity} WHERE node_nid = :nid', array(':nid' => $row->nid))) {
+  if ($quiz_id = db_query('SELECT qid FROM {quiz_entity} WHERE node_nid = :nid', array(':nid' => $row->nid))->fetchColumn()) {
     $quiz = quiz_load($quiz_id);
   }
   else {
@@ -447,8 +448,8 @@ function quiz_update_7603() {
   $select->innerJoin('node_revision', 'r', 'n.nid = r.nid');
   $select->fields('r', array('nid', 'vid'));
   $select->condition('n.type', 'quiz');
-  $result = $select->execute();
-  while ($row = $result->fetchAll()) {
+  $result = $select->execute()->fetchAll();
+  foreach ($result as $row) {
     $quiz_node = node_load($row->nid, $row->vid);
     _quiz_update_7603($quiz_node, $field_names);
   }
@@ -480,8 +481,8 @@ function _quiz_update_7603($quiz_node, $field_names) {
 function quiz_update_7604() {
   $select = db_select('quiz_entity');
   $select->fields('quiz_entity', array('qid', 'node_nid'));
-  $result = $select->execute();
-  while ($row = $result->fetchAll()) {
+  $result = $select->execute()->fetchAll();
+  foreach ($result as $row) {
     if ($path = path_load("node/{$row->node_nid}")) {
       $path['source'] = "quiz/{$row->qid}";
       path_save($path);
@@ -493,7 +494,7 @@ function quiz_update_7604() {
  * Clean up data of when quiz was node.
  */
 function quiz_update_7605() {
-  # db_drop_table('quiz_node_properties');
+  db_drop_table('quiz_node_properties');
   # delete all quiz nodes?
   # delete quiz node type?
 
