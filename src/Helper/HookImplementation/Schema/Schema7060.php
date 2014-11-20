@@ -68,7 +68,7 @@ class Schema7060 {
             'summary_default_format'     => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE,),
             'randomization'              => array('type' => 'int', 'size' => 'small', 'not null' => TRUE, 'default' => 0),
             'backwards_navigation'       => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1),
-            'keep_results'               => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => QUIZ_KEEP_ALL,),
+            'keep_results'               => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 2), // QUIZ_KEEP_ALL = 2
             'repeat_until_correct'       => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
             'quiz_open'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
             'quiz_close'                 => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),

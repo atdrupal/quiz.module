@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\quiz_question\Schema\Schema7060;
+
 /**
  * @file
  * quiz_question.install
@@ -11,64 +13,9 @@
  * Implements hook_schema().
  */
 function quiz_question_schema() {
-  $schema = array();
-
-  $schema['quiz_question'] = array(
-      'description' => 'Store quiz questions',
-      'fields'      => array(
-          'qid'     => array('type' => 'serial', 'not null' => TRUE, 'description' => 'Primary Key: Unique question item ID.'),
-          'vid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-          'type'    => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => '', 'description' => 'The {quiz_question_type}.type of this quiz.'),
-          'status'  => array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'description' => 'Boolean indicating whether the quiz is published (visible to non-administrators).'),
-          'title'   => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'The title of this question, always treated as non-markup plain text.'),
-          'created' => array('type' => 'int', 'not null' => FALSE, 'description' => 'The Unix timestamp when the question was created.'),
-          'changed' => array('type' => 'int', 'not null' => FALSE, 'description' => 'The Unix timestamp when the question was most recently saved.'),
-          'uid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'description' => 'Author ID of question.'),
-      ),
-      'primary key' => array('qid'),
-  );
-
-  $schema['quiz_question_revision'] = array(
-      'description' => 'Entity revision table for question content with fields.',
-      'fields'      => array(
-          'qid'             => array('type' => 'int', 'not null' => TRUE, 'description' => 'The id this revision belongs to'),
-          'vid'             => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The primary identifier for this version.'),
-          'revision_uid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'description' => 'Author of question revision.'),
-          'log'             => array('type' => 'text', 'size' => 'big', 'description' => t('A log message associated with the revision.')),
-          'title'           => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'The title of this question revision, always treated as non-markup plain text.'),
-          'changed'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The Unix timestamp when the question was most recently saved.'),
-          'max_score'       => array('type' => 'int', 'unsigned' => TRUE, 'default' => 0),
-          'feedback'        => array('type' => 'text'),
-          'feedback_format' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE),
-      ),
-      'primary key' => array('vid'),
-      'indexes'     => array(),
-  );
-
-  $schema['quiz_question_type'] = array(
-      'description' => 'Stores information about all defined question types.',
-      'fields'      => array(
-          'id'          => array('type' => 'serial', 'not null' => TRUE, 'description' => 'Primary Key: Unique question type ID.'),
-          'type'        => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'description' => 'The machine-readable name of this question type.'),
-          'plugin'      => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'description' => 'Question plugin type (shortanswer, longanswer, truefalse, …)'),
-          'label'       => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'The human-readable name of this question type.'),
-          'weight'      => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'size' => 'tiny', 'description' => 'The weight of this question type in relation to others.'),
-          'data'        => array('type' => 'text', 'not null' => FALSE, 'size' => 'big', 'serialize' => TRUE, 'description' => 'A serialized array of additional data related to this question type.'),
-          'status'      => array('type' => 'int', 'not null' => TRUE, 'default' => 0x01, 'size' => 'tiny', 'description' => 'The exportable status of the entity.'),
-          'disabled'    => array('type' => 'int', 'not null' => TRUE, 'default' => 0x00, 'size' => 'tiny', 'description' => 'Status of module. Set to 0 if admin would like disable dis question type.'),
-          'module'      => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'description' => 'The name of the providing module if the entity has been defined in code.'),
-          'description' => array('type' => 'text', 'not null' => FALSE, 'size' => 'medium', 'translatable' => TRUE, 'description' => 'A brief description of this question type.'),
-          'help'        => array('type' => 'text', 'not null' => FALSE, 'size' => 'medium', 'translatable' => TRUE, 'description' => 'Help information shown to the user when creating a question entity of this type.'),
-      ),
-      'primary key' => array('id'),
-      'unique keys' => array('type' => array('type')),
-      'indexes'     => array(
-          'plugin'      => array('plugin'),
-          'is_disabled' => array('disabled')
-      ),
-  );
-
-  return $schema;
+  require_once dirname(__FILE__) . '/src/Schema/Schema7060.php';
+  $schema = new Schema7060();
+  return $schema->get();
 }
 
 /**
@@ -112,78 +59,25 @@ function quiz_question_update_7500() {
 }
 
 /**
- * Rename quiz_question_latest_quizzes.quiz_nid to quiz_question_latest_quizzes.quiz_qid
- */
-function quiz_question_update_7601() {
-  $specs = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
-  db_change_field('quiz_question_latest_quizzes', 'quiz_nid', 'quiz_qid', $specs);
-}
-
-/**
- * Drop {quiz_question_latest_quizzes}.
- */
-function quiz_question_update_7602() {
-  db_drop_table('quiz_question_latest_quizzes');
-}
-
-/**
  * Create new tables for question and question type entities.
  */
-function quiz_question_update_7603() {
-  db_create_table('quiz_question', array(
-      'description' => 'Store quiz questions',
-      'fields'      => array(
-          'qid'     => array('type' => 'serial', 'not null' => TRUE, 'description' => 'Primary Key: Unique question item ID.'),
-          'vid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-          'type'    => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => '', 'description' => 'The {quiz_question_type}.type of this quiz.'),
-          'status'  => array('type' => 'int', 'not null' => TRUE, 'default' => 1, 'description' => 'Boolean indicating whether the quiz is published (visible to non-administrators).'),
-          'title'   => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'The title of this question, always treated as non-markup plain text.'),
-          'created' => array('type' => 'int', 'not null' => FALSE, 'description' => 'The Unix timestamp when the question was created.'),
-          'changed' => array('type' => 'int', 'not null' => FALSE, 'description' => 'The Unix timestamp when the question was most recently saved.'),
-          'uid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'description' => 'Author ID of question.'),
-      ),
-      'primary key' => array('qid'),
-  ));
+function quiz_question_update_7600() {
+  require_once dirname(__FILE__) . '/src/Schema/Schema7060.php';
+  $schema = new Schema7060();
+  $tables = $schema->get();
 
-  db_create_table('quiz_question_revision', array(
-      'description' => 'Entity revision table for question content with fields.',
-      'fields'      => array(
-          'qid'             => array('type' => 'int', 'not null' => TRUE, 'description' => 'The id this revision belongs to'),
-          'vid'             => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The primary identifier for this version.'),
-          'revision_uid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'description' => 'Author of question revision.'),
-          'log'             => array('type' => 'text', 'size' => 'big', 'description' => t('A log message associated with the revision.')),
-          'changed'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The Unix timestamp when the question was most recently saved.'),
-          'max_score'       => array('type' => 'int', 'unsigned' => TRUE, 'default' => 0),
-          'feedback'        => array('type' => 'text'),
-          'feedback_format' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE),
-      ),
-      'primary key' => array('vid'),
-      'indexes'     => array(),
-  ));
+  db_create_table('quiz_question_type', $tables['quiz_question_type']);
+  db_create_table('quiz_question', $tables['quiz_question']);
+  db_create_table('quiz_question_revision', $tables['quiz_question_revision']);
 
-  db_create_table('quiz_question_type', array(
-      'description' => 'Stores information about all defined question types.',
-      'fields'      => array(
-          'id'          => array('type' => 'serial', 'not null' => TRUE, 'description' => 'Primary Key: Unique question type ID.'),
-          'type'        => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'description' => 'The machine-readable name of this question type.'),
-          'plugin'      => array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'description' => 'Question provider (shortanswer, longanswer, truefalse, …)'),
-          'label'       => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'The human-readable name of this question type.'),
-          'weight'      => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'size' => 'tiny', 'description' => 'The weight of this question type in relation to others.'),
-          'data'        => array('type' => 'text', 'not null' => FALSE, 'size' => 'big', 'serialize' => TRUE, 'description' => 'A serialized array of additional data related to this question type.'),
-          'status'      => array('type' => 'int', 'not null' => TRUE, 'default' => 0x01, 'size' => 'tiny', 'description' => 'The exportable status of the entity.'),
-          'module'      => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'description' => 'The name of the providing module if the entity has been defined in code.'),
-          'description' => array('type' => 'text', 'not null' => FALSE, 'size' => 'medium', 'translatable' => TRUE, 'description' => 'A brief description of this question type.'),
-          'help'        => array('type' => 'text', 'not null' => FALSE, 'size' => 'medium', 'translatable' => TRUE, 'description' => 'Help information shown to the user when creating a question entity of this type.'),
-      ),
-      'primary key' => array('id'),
-      'unique keys' => array('type' => array('type')),
-  ));
+  // Flush cache to make sure the question entity types is defined
+  drupal_flush_all_caches();
 }
 
 /**
  * Create question bundles from question node types.
  */
-function quiz_question_update_7604() {
+function quiz_question_update_7601() {
   $node_types = db_select('node_type')
     ->condition('module', 'quiz_question')
     ->fields('node_type')
@@ -206,7 +100,7 @@ function quiz_question_update_7604() {
 /**
  * Change owner for question node types.
  */
-function quiz_question_update_7605() {
+function quiz_question_update_7602() {
   db_update('node_type')
     ->fields(array('module' => 'node', 'base' => 'node_content', 'disabled' => 0))
     ->condition('base', 'quiz_question')
@@ -217,24 +111,24 @@ function quiz_question_update_7605() {
 /**
  * Create temp columns for next update scripts.
  */
-function quiz_question_update_7606() {
+function quiz_question_update_7603() {
   db_add_field('quiz_question', 'node_nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
   db_add_field('quiz_question_revision', 'node_vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
-  db_add_index('quiz_question', 'question_node', array('node_qid'));
+  db_add_index('quiz_question', 'question_node', array('node_nid'));
   db_add_index('quiz_question_revision', 'question_node', array('node_vid'));
 }
 
 /**
  * @TODO: Migrate question nodes to question entities.
  */
-function quiz_question_update_7607() {
+function quiz_question_update_7604() {
   foreach (module_implements('quiz_question_info') as $module) {
     $select = db_select('node_revision', 'r');
     $select->innerJoin('node', 'n', 'r.nid = n.nid');
     $node_revisions = $select
       ->fields('r', array('nid', 'vid', 'uid', 'title', 'log', 'timestamp', 'status'))
       ->fields('n', array('type', 'language', 'created', 'changed'))
-      ->condition('node.type', $module)
+      ->condition('n.type', $module)
       ->orderBy('r.vid')
       ->execute()
       ->fetchAll();

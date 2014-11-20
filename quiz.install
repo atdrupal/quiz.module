@@ -6,6 +6,7 @@ use Drupal\quiz\Helper\HookImplementation\Schema\Schema7060;
  * @file
  * Quiz install schema for installing the quiz module
  */
+require_once drupal_get_path('module', 'xautoload') . '/xautoload.module';
 
 /**
  * Implements hook_install().
@@ -325,10 +326,13 @@ function quiz_update_7600() {
   $tables = $schema->get();
 
   db_create_table('quiz_type', $tables['quiz_type']);
-  db_create_table('quiz_entity', $table['quiz_entity']);
-  db_create_table('quiz_entity_revision', $table['quiz_entity_revision']);
+  db_create_table('quiz_entity', $tables['quiz_entity']);
+  db_create_table('quiz_entity_revision', $tables['quiz_entity_revision']);
 
-  return 'Create tables: ';
+  // Flush cache to make sure the question entity types is defined
+  drupal_flush_all_caches();
+
+  return 'Create tables: quiz_type, quiz_entity, quiz_entity_revision.';
 }
 
 /**
@@ -358,7 +362,7 @@ function quiz_update_7601() {
 function quiz_update_7602() {
   // create temp columns quiz_revision.{node_nid, node_vid} to save old data
   db_add_field('quiz_entity', 'node_nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
-  db_add_index('quiz_entity', 'quiz_node', array('node_qid'));
+  db_add_index('quiz_entity', 'quiz_node', array('node_nid'));
   db_add_field('quiz_entity_revision', 'node_vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0));
 
   // create default quiz type
@@ -466,7 +470,7 @@ function _quiz_update_7603($quiz_node, $field_names) {
  */
 function quiz_update_7604() {
   $select = db_select('quiz_entity');
-  $select->fields('quiz_entity', array('qid, node_nid'));
+  $select->fields('quiz_entity', array('qid', 'node_nid'));
   $result = $select->execute();
   while ($row = $result->fetchAll()) {
     if ($path = path_load("node/{$row->node_nid}")) {
