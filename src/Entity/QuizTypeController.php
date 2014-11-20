@@ -5,7 +5,7 @@ namespace Drupal\quiz\Entity;
 use DatabaseTransaction;
 use EntityAPIControllerExportable;
 
-class QuizTypeEntityController extends EntityAPIControllerExportable {
+class QuizTypeController extends EntityAPIControllerExportable {
 
   public function save($entity, DatabaseTransaction $transaction = NULL) {
     $return = parent::save($entity, $transaction);
