@@ -2,3 +2,4 @@ tests/                        export-ignore
 .travis.yml                   export-ignore
 modules/*/test/               export-ignore
 modules/question_types/test/  export-ignore
+lib/Drupal/quiz/Tests         export-ignore
