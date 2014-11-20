@@ -509,13 +509,13 @@ function theme_quiz_result($variables) {
   $output = '';
 
   // Show score.
-  if (quiz()->getQuizHelper()->getFeedbackHelper()->canReview('score', $result)) {
+  if ($result->canReview('score')) {
     $output .= '<div id="quiz_score_possible">' . t('!username got %num_correct of %question_count possible points.', $params) . '</div>' . "\n";
     $output .= '<div id="quiz_score_percent">' . t('!yourtotal score: @score%', $params) . '</div>' . "\n";
   }
 
-  if (quiz()->getQuizHelper()->getFeedbackHelper()->canReview('quiz_feedback', $result)) {
-    // Show quiz feedback
+  // Show quiz feedback
+  if ($result->canReview('quiz_feedback')) {
     if (isset($summary['passfail'])) {
       $output .= '<div id="quiz_summary">' . $summary['passfail'] . '</div>' . "\n";
     }

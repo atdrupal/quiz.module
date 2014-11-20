@@ -119,6 +119,29 @@ class Result extends Entity {
   }
 
   /**
+   * Can the quiz taker view the requested review?
+   *
+   * There's a workaround in here: @kludge
+   *
+   * When review for the question is enabled, and it is the last question,
+   * technically it is the end of the quiz, and the "end of quiz" review
+   * settings apply. So we check to make sure that we are in question taking
+   * and the feedback is viewed within 5 seconds of completing the question/quiz.
+   */
+  public function canReview($option) {
+    // Check what context the result is in.
+    if ($this->time_end && arg(2) !== 'take') {
+      // Quiz is over. Pull from the "at quiz end" settings.
+      return !empty($this->getQuiz()->review_options['end'][$option]);
+    }
+
+    // Quiz ongoing. Pull from the "after question" settings.
+    if (!$this->time_end || $this->time_end >= REQUEST_TIME - 5) {
+      return !empty($this->getQuiz()->review_options['question'][$option]);
+    }
+  }
+
+  /**
    * Deletes results for a quiz according to the keep results setting
    *
    * @param int $uid
