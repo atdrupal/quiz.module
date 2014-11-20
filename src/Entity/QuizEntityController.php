@@ -59,6 +59,8 @@ class QuizEntityController extends EntityAPIController {
    * @param QuizEntity $quiz
    */
   public function buildContent($quiz, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    global $user;
+
     drupal_alter('quiz_view', $quiz, $view_mode);
 
     $extra_fields = field_extra_fields_get_display($this->entityType, $quiz->type, $view_mode);
@@ -78,8 +80,8 @@ class QuizEntityController extends EntityAPIController {
     // Render take button
     if ($extra_fields['take']['visible']) {
       $markup = l(t('Start @quiz', array('@quiz' => QUIZ_NAME)), 'quiz/' . $quiz->qid . '/take');
-      if (TRUE !== $checking = quiz()->getQuizHelper()->isAvailable($quiz)) {
-        $markup = $checking;
+      if (TRUE !== $quiz->isAvailable($user)) {
+        $markup = t('This @quiz is not available.', array('@quiz' => QUIZ_NAME));
       }
 
       $content['quiz_entity'][$quiz->qid]['take'] = array(

@@ -72,7 +72,7 @@ class QuizTakeController extends QuizTakeLegacyController {
       module_invoke_all('quiz_begin', $this->quiz, $this->result->result_id);
     }
 
-    if (!quiz()->getQuizHelper()->isAvailable($this->quiz)) {
+    if (TRUE !== $this->quiz->isAvailable($this->account)) {
       throw new RuntimeException(t('This @quiz is not available.', array('@quiz' => QUIZ_NAME)));
     }
   }

@@ -76,38 +76,6 @@ class QuizHelper {
   }
 
   /**
-   * Find out if a quiz is available for taking or not
-   *
-   * @param QuizEntity $quiz
-   * @return
-   *  TRUE if available
-   *  Error message(String) if not available
-   */
-  public function isAvailable(QuizEntity $quiz) {
-    global $user;
-
-    if (!$user->uid && $quiz->takes > 0) {
-      return t('This @quiz only allows %num_attempts attempts. Anonymous users can only access quizzes that allows an unlimited number of attempts.', array(
-          '%num_attempts' => $quiz->takes,
-          '@quiz'         => QUIZ_NAME
-      ));
-    }
-
-    $user_is_admin = entity_access('update', 'quiz_entity', $quiz);
-    if ($user_is_admin || $quiz->quiz_always) {
-      return TRUE;
-    }
-
-    // Compare current GMT time to the open and close dates (which should still be
-    // in GMT time).
-    if ((REQUEST_TIME >= $quiz->quiz_close) || (REQUEST_TIME < $quiz->quiz_open)) {
-      return t('This @quiz is closed.', array('@quiz' => QUIZ_NAME));
-    }
-
-    return TRUE;
-  }
-
-  /**
    * Check a user/quiz combo to see if the user passed the given quiz.
    *
    * This will return TRUE if the user has passed the quiz at least once, and

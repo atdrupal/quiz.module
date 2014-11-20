@@ -168,8 +168,8 @@ class AccessHelper {
     return TRUE;
   }
 
-  public function canTakeQuiz($quiz, $account) {
-    if (!quiz()->getQuizHelper()->isAvailable($quiz)) {
+  public function canTakeQuiz(QuizEntity $quiz, $account) {
+    if (TRUE !== $quiz->isAvailable($account)) {
       return FALSE;
     }
     return entity_access('view', 'quiz_entity', $quiz, $account) && user_access('access quiz', $account);
