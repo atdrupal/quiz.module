@@ -16,6 +16,8 @@ class QuizUpgradeTestCase extends UpdatePathTestCase {
   public function setUp() {
     $this->databaseDumpFiles = array(drupal_get_path('module', 'quiz') . '/tests/upgrade/quiz-5x.php.gz');
     parent::setUp();
+    module_enable(array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations', 'xautoload'));
+    $this->loadedModules = module_list();
   }
 
   public function testOk() {

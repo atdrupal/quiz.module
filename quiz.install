@@ -6,7 +6,6 @@ use Drupal\quiz\Helper\HookImplementation\Schema\Schema7060;
  * @file
  * Quiz install schema for installing the quiz module
  */
-require_once drupal_get_path('module', 'xautoload') . '/xautoload.module';
 
 /**
  * Implements hook_install().
@@ -321,9 +320,10 @@ function quiz_update_7509() {
  * Enable required modules for quiz-6.x
  */
 function quiz_update_7599() {
-  module_enable(array('entity', 'xautoload'));
+  module_enable(array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations', 'xautoload'));
   registry_rebuild();
   drupal_flush_all_caches();
+  drupal_static_reset();
 }
 
 /**

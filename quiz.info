@@ -3,9 +3,9 @@ package = Quiz Core
 description = Create interactive quizzes. This module must have at least one question type module enabled in order to function properly.
 core = 7.x
 
-dependencies[] = filter
 dependencies[] = ctools
 dependencies[] = entity
+dependencies[] = filter
 dependencies[] = views
 dependencies[] = views_bulk_operations
 dependencies[] = xautoload (>= 7.x-4.0)
@@ -40,6 +40,4 @@ files[] = tests/QuizRandomTestCase.test
 files[] = tests/QuizResultTestCase.test
 files[] = tests/QuizTakingTestCase.test
 files[] = tests/QuizTimerTestCase.test
-
-; Being failed, test this later
-; files[] = tests/QuizUpgradeTestCase.test
+files[] = tests/QuizUpgradeTestCase.test
