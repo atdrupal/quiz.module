@@ -3,7 +3,7 @@
 abstract class QuizUpgradeBaseTestCase extends UpdatePathTestCase {
 
   protected static $testDumpFile = '…';
-  protected static $dependencies = array();
+  protected static $dependencies = array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations', 'xautoload');
   protected static $testName = 'Quiz upgrade';
   protected static $testDescription = 'Test an upgrade from various Quiz versions.';
 
@@ -32,7 +32,6 @@ class QuizUpgradeFrom7x4xBeta2TestCase extends QuizUpgradeBaseTestCase {
 
   protected static $testName = 'Quiz upgrade from 7.x-4.x';
   protected static $testDumpFile = 'quiz-4x-beta2.php.gz';
-  protected static $dependencies = array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations');
 
 }
 
@@ -40,6 +39,5 @@ class QuizUpgradeFrom7x5xTestCase extends QuizUpgradeBaseTestCase {
 
   protected static $testName = 'Quiz upgrade from 7.x-5.x';
   protected static $testDumpFile = 'quiz-5x.php.gz';
-  protected static $dependencies = array('ctools', 'entity', 'filter', 'views', 'views_bulk_operations', 'xautoload');
 
 }
