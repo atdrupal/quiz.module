@@ -10,7 +10,7 @@ use Drupal\quiz\Entity\QuizEntity\Stats;
 use EntityAPIController;
 use stdClass;
 
-class QuizEntityController extends EntityAPIController {
+class QuizController extends EntityAPIController {
 
   /** @var DefaultPropertiesIO */
   private $default_properties_io;
@@ -56,9 +56,30 @@ class QuizEntityController extends EntityAPIController {
   }
 
   /**
+   * Get the feedback options for Quizzes.
+   */
+  public function getFeedbackOptions() {
+    $feedback_options = array(
+        'attempt'           => t('Attempt'),
+        'correct'           => t('Whether correct'),
+        'score'             => t('Score'),
+        'answer_feedback'   => t('Answer feedback'),
+        'question_feedback' => t('Question feedback'),
+        'solution'          => t('Correct answer'),
+        'quiz_feedback'     => t('@quiz feedback', array('@quiz' => QUIZ_NAME)),
+    );
+
+    drupal_alter('quiz_feedback_options', $feedback_options);
+
+    return $feedback_options;
+  }
+
+  /**
    * @param QuizEntity $quiz
    */
   public function buildContent($quiz, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    global $user;
+
     drupal_alter('quiz_view', $quiz, $view_mode);
 
     $extra_fields = field_extra_fields_get_display($this->entityType, $quiz->type, $view_mode);
@@ -78,7 +99,7 @@ class QuizEntityController extends EntityAPIController {
     // Render take button
     if ($extra_fields['take']['visible']) {
       $markup = l(t('Start @quiz', array('@quiz' => QUIZ_NAME)), 'quiz/' . $quiz->qid . '/take');
-      if (TRUE !== $checking = quiz()->getQuizHelper()->isAvailable($quiz)) {
+      if (TRUE !== $checking = $quiz->isAvailable($user)) {
         $markup = $checking;
       }
 

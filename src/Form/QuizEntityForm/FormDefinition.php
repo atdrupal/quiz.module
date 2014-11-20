@@ -173,8 +173,7 @@ class FormDefinition extends FormHelper {
         '#tree'        => TRUE,
     );
 
-    $review_options = quiz()->getQuizHelper()->getFeedbackHelper()->getOptions();
-
+    $review_options = quiz_controller()->getFeedbackOptions();
     foreach (array('question' => t('After the question'), 'end' => t('After the @quiz', array('@quiz' => QUIZ_NAME))) as $key => $when) {
       $form['taking']['review_options'][$key] = array(
           '#title'         => $when,

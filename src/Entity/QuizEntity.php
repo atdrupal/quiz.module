@@ -70,7 +70,7 @@ class QuizEntity extends Entity {
   }
 
   /**
-   * @return \Drupal\quiz\Entity\QuizEntityController
+   * @return \Drupal\quiz\Entity\QuizController
    */
   public function getController() {
     return quiz_controller();
@@ -150,6 +150,33 @@ class QuizEntity extends Entity {
 
     // Otherwise let's add a relationship!
     return $question->getPlugin()->saveRelationships($this->qid, $this->vid);
+  }
+
+  /**
+   * Find out if a quiz is available for taking or not for a specific user.
+   *
+   * @return bool
+   *  TRUE if available
+   */
+  public function isAvailable($account) {
+    if (!$account->uid && $this->takes > 0) {
+      return t('This @quiz only allows %num_attempts attempts. Anonymous users can only access quizzes that allows an unlimited number of attempts.', array(
+          '%num_attempts' => $this->takes,
+          '@quiz'         => QUIZ_NAME
+      ));
+    }
+
+    if (entity_access('update', 'quiz_entity', $this) || $this->quiz_always) {
+      return TRUE;
+    }
+
+    // Compare current GMT time to the open and close dates (which should still be
+    // in GMT time).
+    if ((REQUEST_TIME >= $this->quiz_close) || (REQUEST_TIME < $this->quiz_open)) {
+      return t('This @quiz is closed.', array('@quiz' => QUIZ_NAME));
+    }
+
+    return TRUE;
   }
 
 }

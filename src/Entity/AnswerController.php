@@ -17,10 +17,9 @@ class AnswerController extends EntityAPIController {
    * @return Answer
    */
   public function loadByResultAndQuestion($result_id, $question_vid) {
-    $sql = 'SELECT * FROM {quiz_results_answers} WHERE result_id = :result_id AND question_vid = :vid';
-    $params = array(':result_id' => $result_id, ':vid' => $question_vid);
-    if ($row = db_query($sql, $params)->fetch()) {
-      return entity_load_single('quiz_result_answer', $row->result_answer_id);
+    $conditions = array('result_id' => $result_id, 'vid' => $question_vid);
+    if ($return = entity_load('quiz_result_answer', FALSE, $conditions)) {
+      return reset($return);
     }
   }
 

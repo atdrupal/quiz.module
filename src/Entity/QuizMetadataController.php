@@ -4,7 +4,7 @@ namespace Drupal\quiz\Entity;
 
 use EntityDefaultMetadataController;
 
-class QuizEntityMetadataController extends EntityDefaultMetadataController {
+class QuizMetadataController extends EntityDefaultMetadataController {
 
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();

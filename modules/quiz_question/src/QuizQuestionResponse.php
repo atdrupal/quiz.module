@@ -394,7 +394,7 @@ abstract class QuizQuestionResponse {
     $can_review = &drupal_static(__METHOD__, array());
     if (!isset($can_review[$option])) {
       $result = quiz_result_load($this->result_id);
-      $can_review[$option] = quiz()->getQuizHelper()->getFeedbackHelper()->canReview($option, $result);
+      $can_review[$option] = $result->canReview($option);
     }
     return $can_review[$option];
   }
