@@ -318,6 +318,15 @@ function quiz_update_7509() {
 }
 
 /**
+ * Enable required modules for quiz-6.x
+ */
+function quiz_update_7599() {
+  module_enable(array('entity', 'xautoload'));
+  registry_rebuild();
+  drupal_flush_all_caches();
+}
+
+/**
  * Update schema for quiz when it becomes entity.
  */
 function quiz_update_7600() {
