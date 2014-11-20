@@ -430,5 +430,5 @@ function quiz_type_confirm($node, $op = NULL) {
  * Menu access check for question feedback.
  */
 function quiz_question_feedback_access($quiz, $question_number) {
-  return quiz()->getQuizHelper()->getFeedbackHelper()->canAccess($quiz, $question_number);
+  return (bool) quiz()->getQuizHelper()->getFeedbackHelper()->canAccess($quiz, $question_number);
 }
