@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\quiz\Entity\QuizEntityType;
+use Drupal\quiz\Entity\QuizType;
 use Drupal\quiz\Entity\Result;
 use Drupal\quiz\Quiz;
 
@@ -93,7 +93,7 @@ function quiz_answer_controller() {
 /**
  * Gets an array of all quiz types, keyed by the type name.
  *
- * @return \Drupal\quiz\Entity\QuizEntityType[]
+ * @return \Drupal\quiz\Entity\QuizType[]
  */
 function quiz_get_types() {
   return entity_load_multiple_by_name('quiz_type');
@@ -103,7 +103,7 @@ function quiz_get_types() {
  * Get quiz-type by machine name.
  *
  * @param string $name
- * @return \Drupal\quiz\Entity\QuizEntityType
+ * @return \Drupal\quiz\Entity\QuizType
  */
 function quiz_type_load($name) {
   $type = entity_load_multiple_by_name('quiz_type', array($name));

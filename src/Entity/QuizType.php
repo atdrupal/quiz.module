@@ -4,7 +4,7 @@ namespace Drupal\quiz\Entity;
 
 use Entity;
 
-class QuizEntityType extends Entity {
+class QuizType extends Entity {
 
   public $type;
   public $label;

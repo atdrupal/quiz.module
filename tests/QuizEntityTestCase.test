@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\quiz\Entity\QuizEntity;
-use Drupal\quiz\Entity\QuizEntityType;
+use Drupal\quiz\Entity\QuizType;
 
 /**
  * Test aspects of quiz creation including global and user defaults.
@@ -36,10 +36,10 @@ class QuizEntityTestCase extends QuizTestCase {
     // Default quiz type.
     $types = entity_load('quiz_type', array('quiz'));
     $default_quiz_type = reset($types);
-    $this->assertTrue($default_quiz_type instanceof QuizEntityType, 'Default quiz type is created.');
+    $this->assertTrue($default_quiz_type instanceof QuizType, 'Default quiz type is created.');
 
     $quiz_type = entity_create('quiz_type', array('type' => 'new_quiz'));
-    $this->assertTrue($quiz_type instanceof QuizEntityType, 'Quiz type entity is created correctly using entity_create().');
+    $this->assertTrue($quiz_type instanceof QuizType, 'Quiz type entity is created correctly using entity_create().');
     entity_save('quiz_type', $quiz_type);
   }
 

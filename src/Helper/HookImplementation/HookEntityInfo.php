@@ -19,7 +19,7 @@ class HookEntityInfo {
         'label'            => t('!quiz type', array('!quiz' => QUIZ_NAME)),
         'plural label'     => t('!quiz types', array('!quiz' => QUIZ_NAME)),
         'description'      => t('Types of !quiz.', array('!quiz' => QUIZ_NAME)),
-        'entity class'     => 'Drupal\quiz\Entity\QuizEntityType',
+        'entity class'     => 'Drupal\quiz\Entity\QuizType',
         'controller class' => 'Drupal\quiz\Entity\QuizTypeEntityController',
         'base table'       => 'quiz_type',
         'fieldable'        => FALSE,
