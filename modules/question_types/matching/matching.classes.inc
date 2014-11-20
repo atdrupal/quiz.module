@@ -40,7 +40,7 @@ class MatchingQuestion extends QuestionPlugin {
   public function saveEntityProperties($is_new = FALSE) {
     // Update or insert the question properties
     db_merge('quiz_matching_properties')
-      ->key(array('nid' => $this->question->nid, 'vid' => $this->question->vid))
+      ->key(array('nid' => $this->question->qid, 'vid' => $this->question->vid))
       ->fields(array('choice_penalty' => $this->question->choice_penalty))
       ->execute();
 
