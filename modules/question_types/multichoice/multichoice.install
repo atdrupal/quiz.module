@@ -16,6 +16,15 @@ function multichoice_install() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function multichoice_uninstall() {
+  variable_del('multichoice_def_scoring');
+  variable_del('multichoice_def_num_of_alts');
+  drupal_set_message(t("The multichoice module has been uninstalled. multichoice nodes may still exist, but they will not function properly."));
+}
+
+/**
  * Implements hook_schema().
  */
 function multichoice_schema() {
@@ -36,16 +45,8 @@ function multichoice_schema() {
 
   $schema['quiz_multichoice_user_answer_multi'] = array(
       'fields'      => array(
-          'user_answer_id' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'answer_id'      => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
+          'user_answer_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'answer_id'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       ),
       'primary key' => array(
           'user_answer_id', 'answer_id'
@@ -57,34 +58,11 @@ function multichoice_schema() {
 
   $schema['quiz_multichoice_properties'] = array(
       'fields'      => array(
-          'nid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'vid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'choice_multi'   => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'choice_random'  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'choice_boolean' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
+          'nid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'vid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'choice_multi'   => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'choice_random'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'choice_boolean' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       ),
       'primary key' => array('nid', 'vid'),
   );
@@ -113,51 +91,14 @@ function multichoice_schema() {
 
   $schema['quiz_multichoice_user_settings'] = array(
       'fields'      => array(
-          'uid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'choice_multi'   => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'choice_random'  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'choice_boolean' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
+          'uid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'choice_multi'   => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'choice_random'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'choice_boolean' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       ),
-      'primary key' => array(
-          'uid'
-      ),
+      'primary key' => array('uid'),
   );
   return $schema;
-}
-
-/**
- * Implements hook_uninstall().
- */
-function multichoice_uninstall() {
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_uninstall_schema('multichoice')
-  $var = array(
-      'multichoice_def_scoring',
-      'multichoice_def_num_of_alts',
-  );
-  foreach ($var as $v) {
-    variable_del($v);
-  }
-  drupal_set_message(t("The multichoice module has been uninstalled. multichoice nodes may still exist, but they will not function properly."));
 }
 
 /**
@@ -165,8 +106,6 @@ function multichoice_uninstall() {
  */
 function multichoice_update_7501() {
   db_add_field('quiz_multichoice_answers', 'weight', array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0));
-
-  // Lol.
   db_query('UPDATE {quiz_multichoice_answers} SET weight = id');
   return t('Added weights for multichoice alternatives.');
 }
