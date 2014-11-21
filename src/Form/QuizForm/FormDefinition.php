@@ -61,7 +61,7 @@ class FormDefinition extends FormHelper {
         '#weight'        => -20,
     );
 
-    if (module_exists('locale')) {
+    if (module_exists('locale') && $quiz_type->data['multilingual']) {
       $language_options = array();
       foreach (language_list() as $langcode => $lang) {
         $language_options[$langcode] = $lang->name;
@@ -71,7 +71,7 @@ class FormDefinition extends FormHelper {
           '#type'          => count($language_options) < 5 ? 'radios' : 'select',
           '#title'         => t('Language'),
           '#options'       => $language_options,
-          '#default_value' => $language->language,
+          '#default_value' => isset($this->quiz->language) ? $this->quiz->language : $language->language,
       );
     }
 
