@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\quiz\Helper\HookImplementation\Schema\Schema7060;
+use Drupal\quiz\Schema\Schema7060;
 
 /**
  * @file
