@@ -97,8 +97,8 @@ function quiz_views_data_alter(&$data) {
   $data['quiz_results_answers']['table']['join'] = array(
       'quiz_entity_revision' => array(
           'left_table' => 'quiz_relationship',
-          'left_field' => 'question_nid',
-          'field'      => 'question_nid',
+          'left_field' => 'question_qid',
+          'field'      => 'question_qid',
           'extra'      => 'quiz_results_answers.result_id = quiz_results.result_id',
       ),
   );

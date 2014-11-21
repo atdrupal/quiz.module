@@ -51,7 +51,7 @@ class NodeInsertHelper extends NodeHelper {
   private function copyQuestions(QuizEntity $quiz) {
     // Find original questions.
     $query = db_query('
-        SELECT question_nid, question_vid, question_status, weight, max_score, auto_update_max_score
+        SELECT question_qid, question_vid, question_status, weight, max_score, auto_update_max_score
         FROM {quiz_relationship}
         WHERE quiz_vid = :quiz_vid', array(':quiz_vid' => $quiz->translation_source->vid));
     foreach ($query as $relationship) {
@@ -60,7 +60,7 @@ class NodeInsertHelper extends NodeHelper {
   }
 
   private function copyQuestion(QuizEntity $quiz, $relationship) {
-    $question = quiz_question_entity_load($relationship->question_nid);
+    $question = quiz_question_entity_load($relationship->question_qid);
 
     // Set variables we can't or won't carry with us to the translated node to NULL.
     $question->nid = $question->vid = $question->created = $question->changed = NULL;
@@ -81,7 +81,7 @@ class NodeInsertHelper extends NodeHelper {
       ->fields(array(
           'quiz_qid'              => $quiz->qid,
           'quiz_vid'              => $quiz->vid,
-          'question_nid'          => $question->nid,
+          'question_qid'          => $question->nid,
           'question_vid'          => $question->vid,
           'question_status'       => $relationship->question_status,
           'weight'                => $relationship->weight,

@@ -11,7 +11,7 @@ class AnswerMetadataController extends EntityDefaultMetadataController {
     $properties = &$info[$this->type]['properties'];
 
     $properties['result_id']['type'] = 'quiz_result';
-    $properties['question_nid']['type'] = 'node';
+    $properties['question_qid']['type'] = 'node';
     $properties['is_correct']['type'] = 'boolean';
     $properties['is_skipped']['type'] = 'boolean';
     $properties['is_doubtful']['type'] = 'boolean';

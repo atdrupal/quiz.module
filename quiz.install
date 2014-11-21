@@ -352,7 +352,7 @@ function quiz_update_7601() {
   db_change_field('quiz_relationship', 'qnr_id', 'qr_id', array('type' => 'serial', 'size' => 'normal', 'unsigned' => TRUE, 'not null' => TRUE));
   db_change_field('quiz_relationship', 'parent_nid', 'quiz_qid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE));
   db_change_field('quiz_relationship', 'parent_vid', 'quiz_vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE));
-  db_change_field('quiz_relationship', 'child_nid', 'question_nid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE));
+  db_change_field('quiz_relationship', 'child_nid', 'question_qid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE));
   db_change_field('quiz_relationship', 'child_vid', 'question_vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE));
 
   db_rename_table('quiz_node_results', 'quiz_results');

@@ -43,7 +43,7 @@ class Stats {
   public function countAlwaysQuestions($quiz_vid) {
     return (int) db_query('SELECT COUNT(*)
       FROM {quiz_relationship} qnr
-        JOIN {node} n ON n.nid = qnr.question_nid
+        JOIN {node} n ON n.nid = qnr.question_qid
       WHERE n.status = 1
         AND qnr.quiz_vid = :quiz_vid
         AND qnr.question_status = :question_status', array(

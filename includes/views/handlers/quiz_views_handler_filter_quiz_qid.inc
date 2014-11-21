@@ -22,22 +22,22 @@ class quiz_views_handler_filter_quiz_qid extends views_handler_filter {
   var $secondary_table_alias;
   var $secondary_tables = array(
       'none'      => array(
-          'secondary_group_by' => 'nid',
+          'secondary_group_by' => 'qid',
           'secondary_table'    => 'quiz_results',
           'secondary_vid'      => 'vid',
-          'secondary_nid'      => 'nid',
+          'secondary_qid'      => 'qid',
       ),
       'results'   => array(
           'secondary_group_by' => 'uid',
           'secondary_table'    => 'quiz_results',
           'secondary_vid'      => 'vid',
-          'secondary_nid'      => 'nid',
+          'secondary_qid'      => 'qid',
       ),
       'questions' => array(
-          'secondary_group_by' => 'question_nid',
+          'secondary_group_by' => 'question_qid',
           'secondary_table'    => 'quiz_relationship',
           'secondary_vid'      => 'quiz_vid',
-          'secondary_nid'      => 'quiz_qid',
+          'secondary_qid'      => 'quiz_qid',
       ),
   );
 

@@ -11,7 +11,7 @@ class Relationship extends Entity {
   public $quiz_qid;
   public $quiz_vid;
   public $qr_pid;
-  public $question_nid;
+  public $question_qid;
   public $question_vid;
   public $question_status;
   public $weight;
@@ -24,7 +24,7 @@ class Relationship extends Entity {
    * @return Question
    */
   public function getQuestion() {
-    return quiz_question_entity_load($this->question_nid, $this->question_vid);
+    return quiz_question_entity_load($this->question_qid, $this->question_vid);
   }
 
 }

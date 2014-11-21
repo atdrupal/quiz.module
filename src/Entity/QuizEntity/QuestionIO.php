@@ -81,14 +81,14 @@ class QuestionIO {
    */
   private function getRequiredQuestions() {
     $select = db_select('quiz_relationship', 'relationship');
-    $select->innerJoin('quiz_question', 'question', 'relationship.question_nid = question.qid');
+    $select->innerJoin('quiz_question', 'question', 'relationship.question_qid = question.qid');
 
     // Sub relationship
     $cond_1 = 'relationship.qr_pid = sub_relationship.qr_id';
     $cond_2 = 'relationship.qr_pid IS NULL AND relationship.qr_id = sub_relationship.qr_id';
     $select->leftJoin('quiz_relationship', 'sub_relationship', "($cond_1) OR ($cond_2)");
 
-    $select->addField('relationship', 'question_nid', 'qid');
+    $select->addField('relationship', 'question_qid', 'qid');
     $select->addField('relationship', 'question_vid', 'vid');
     $select->addField('question', 'type');
     $select->fields('relationship', array('qr_id', 'qr_pid', 'question_status', 'weight', 'max_score'));
@@ -141,8 +141,8 @@ class QuestionIO {
 
   private function doGetRandomQuestion($amount) {
     $select = db_select('quiz_relationship', 'relationship');
-    $select->join('quiz_question', 'question', 'relationship.question_nid = question.qid');
-    $select->addField('relationship', 'question_nid', 'qid');
+    $select->join('quiz_question', 'question', 'relationship.question_qid = question.qid');
+    $select->addField('relationship', 'question_qid', 'qid');
     $select->addField('relationship', 'question_vid', 'vid');
     $select->addExpression(':true', 'random', array(':true' => TRUE));
     $select->addExpression(':number', 'relative_max_score', array(':number' => $this->quiz->max_score_for_random));
@@ -257,7 +257,7 @@ class QuestionIO {
       $relationships[$question->qr_id] = entity_create('quiz_question_relationship', array(
           'quiz_qid'              => $this->quiz->qid,
           'quiz_vid'              => $this->quiz->vid,
-          'question_nid'          => $question->qid,
+          'question_qid'          => $question->qid,
           'question_vid'          => $question_vid,
           'question_status'       => $question->state,
           'weight'                => $question->weight,
