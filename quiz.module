@@ -27,9 +27,9 @@ define('QUIZ_VIEWS_DIR', drupal_get_path('module', 'quiz') . '/includes/views');
 /*
  * Define question statuses...
  */
-define('QUESTION_RANDOM', 0);
-define('QUESTION_ALWAYS', 1);
-define('QUESTION_NEVER', 2);
+define('QUIZ_QUESTION_RANDOM', 0);
+define('QUIZ_QUESTION_ALWAYS', 1);
+define('QUIZ_QUESTION_NEVER', 2);
 
 /**
  * Quiz name.
@@ -93,7 +93,7 @@ function quiz_entity_info_alter(&$info) {
   $info['node']['view modes'] += array(
     'question' => array(
       'label' => t('Question'),
-      'custom settings' => TRUE,
+      'custom settings' => FALSE,
     ),
   );
 }
@@ -835,12 +835,13 @@ function quiz_delete($node) {
 function _quiz_get_node_defaults() {
   return (object) array(
       'aid' => NULL,
+      'allow_change' => 1,
       'allow_jumping' => 0,
       'allow_resume' => 1,
       'allow_skipping' => 1,
-      'allow_change' => 1,
       'always_available' => TRUE,
       'backwards_navigation' => 1,
+      'build_on_last' => '',
       'has_userpoints' => 0,
       'keep_results' => 2,
       'mark_doubtful' => 0,
@@ -1088,6 +1089,17 @@ function quiz_form(&$node, &$form_state) {
     '#title' => t('Repeat until correct'),
     '#default_value' => $node->repeat_until_correct,
     '#description' => t('Require the user to retry the question until answered correctly.'),
+  );
+  $form['taking']['build_on_last'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      '' => t('Fresh attempt every time'),
+      'correct' => t('Prepopulate with correct answers from last result'),
+      'all' => t('Prepopulate with all answers from last result'),
+    ),
+    '#title' => t('Each attempt builds on the last'),
+    '#default_value' => $node->build_on_last,
+    '#description' => t('Instead of starting a fresh Quiz, new attempts will be created based on the last attempt, with correct answers prefilled.'),
   );
   $form['taking']['mark_doubtful'] = array(
     '#type' => 'checkbox',
@@ -1649,7 +1661,7 @@ function quiz_get_score_data($nids, $uid, $include_num_questions = FALSE) {
     $res = db_query('SELECT COUNT(*) AS num_always_questions, parent_vid
             FROM {quiz_node_relationship}
             WHERE parent_vid IN (' . implode(', ', $vids) . ')
-            AND question_status = ' . QUESTION_ALWAYS . '
+            AND question_status = ' . QUIZ_QUESTION_ALWAYS . '
             GROUP BY parent_vid');
     foreach ($res as $res_o) {
       $to_return[$res_o->parent_vid]->num_questions = $to_return[$res_o->parent_vid]->num_random_questions + $res_o->num_always_questions;
@@ -1692,7 +1704,7 @@ function quiz_update_quiz_question_relationship($old_quiz_vid, $new_quiz_vid, $q
     ->fields('qnr', array('parent_nid', 'child_nid', 'child_vid', 'question_status', 'weight', 'max_score', 'auto_update_max_score', 'qnr_id', 'qnr_pid'))
     ->condition('parent_nid', $quiz_nid)
     ->condition('parent_vid', $old_quiz_vid)
-    ->condition('question_status', QUESTION_NEVER, '!=')
+    ->condition('question_status', QUIZ_QUESTION_NEVER, '!=')
     ->execute();
 
   // only proceed if query returned data
@@ -1815,6 +1827,10 @@ function quiz_take_quiz($quiz) {
  *   directions are considered part of the numbering.
  */
 function quiz_take_question($quiz, $question_number) {
+  // Preserve "Take" tab.
+  $item = menu_get_item("node/$quiz->nid/take");
+  menu_set_item(NULL, $item);
+
   if (!empty($_SESSION['quiz'][$quiz->nid]['result_id'])) {
     $quiz_result = quiz_result_load($_SESSION['quiz'][$quiz->nid]['result_id']);
     $question = $quiz_result->layout[$question_number];
@@ -1922,6 +1938,29 @@ function quiz_take_question($quiz, $question_number) {
  *   The quiz attempt/result.
  */
 function quiz_create_attempt($quiz) {
+  global $user;
+
+  if ($quiz->build_on_last) {
+    // Build on the last attempt the user took. If this quiz has build on last
+    // attempt set, we need to search for a previous attempt with the same
+    // version of the current quiz.
+    $efq = new EntityFieldQuery;
+    $result = $efq->entityCondition('entity_type', 'quiz_result')
+      ->propertyCondition('uid', $user->uid)
+      ->propertyCondition('nid', $quiz->nid)
+      ->propertyCondition('vid', $quiz->vid)
+      ->propertyOrderBy('time_start', 'DESC')
+      ->range(0, 1)
+      ->execute();
+    if (!empty($result['quiz_result'])) {
+      // Found an existing result we need to rebuild from. We also need to
+      // retain the version.
+      $result_id = key($result['quiz_result']);
+      $quiz_result_old = entity_load_single('quiz_result', $result_id);
+      $quiz = node_load($quiz_result_old->nid, $quiz_result_old->vid);
+    }
+  }
+
   // Create question list.
   $questions = quiz_build_question_list($quiz);
   if ($questions === FALSE) {
@@ -1947,6 +1986,14 @@ function quiz_create_attempt($quiz) {
     entity_save('quiz_result_answer', $quiz_result_answer);
   }
 
+  if ($quiz->build_on_last && isset($quiz_result_old)) {
+    // We need to reload to get the layout loaded on.
+    $quiz_result = quiz_result_load($quiz_result->result_id);
+    // Now clone the answers on top of the new result.
+    quiz_clone_quiz_result($quiz_result_old, $quiz_result);
+  }
+
+  // Reload the quiz result.
   return quiz_result_load($quiz_result->result_id);
 }
 
@@ -2299,7 +2346,7 @@ function quiz_update_max_score_properties($quizzes_to_update) {
     ->expression('max_score', 'max_score_for_random * number_of_random_questions + (
       SELECT COALESCE(SUM(max_score), 0)
       FROM {quiz_node_relationship} qnr
-      WHERE qnr.question_status = ' . QUESTION_ALWAYS . '
+      WHERE qnr.question_status = ' . QUIZ_QUESTION_ALWAYS . '
       AND parent_vid = {quiz_node_properties}.vid)')
     ->condition('vid', $quizzes_to_update, 'IN')
     ->execute();
@@ -2606,7 +2653,7 @@ function quiz_build_question_list($quiz) {
     WHERE qnr.parent_vid = :parent_vid
     AND qnr.question_status = :question_status
     AND n.status = 1
-    ORDER BY qnr2.weight, qnr.weight', array(':parent_vid' => $quiz->vid, ':question_status' => QUESTION_ALWAYS));
+    ORDER BY qnr2.weight, qnr.weight', array(':parent_vid' => $quiz->vid, ':question_status' => QUIZ_QUESTION_ALWAYS));
     $i = 0;
     while ($question_node = $query->fetchAssoc()) {
       // Just to make it easier on us, let's use a 1-based index.
@@ -2723,7 +2770,7 @@ function quiz_node_map($node) {
   $new_question = node_load($node->nid, $node->vid);
   // Append extra fields.
   $new_question->latest_vid = $node->latest_vid;
-  $new_question->question_status = isset($node->question_status) ? $node->question_status : QUESTION_NEVER;
+  $new_question->question_status = isset($node->question_status) ? $node->question_status : QUIZ_QUESTION_NEVER;
   if (isset($node->max_score)) {
     $new_question->max_score = $node->max_score;
   }
@@ -2778,7 +2825,7 @@ function quiz_set_questions(&$quiz, $questions, $set_new_revision = FALSE) {
   }
 
   foreach ($questions as $question) {
-    if ($question->state != QUESTION_NEVER) {
+    if ($question->state != QUIZ_QUESTION_NEVER) {
       $question_inserts[$question->qnr_id] = array(
         'parent_nid' => $quiz->nid,
         'parent_vid' => $quiz->vid,
@@ -3020,7 +3067,7 @@ function _quiz_get_random_questions($quiz) {
         ORDER BY RAND()", 0, $quiz->number_of_random_questions, array(
         ':parent_vid' => $quiz->vid,
         ':parent_nid' => $quiz->nid,
-        ':question_status' => QUESTION_RANDOM
+        ':question_status' => QUIZ_QUESTION_RANDOM
         )
       );
       while ($question_node = $result->fetchAssoc()) {
@@ -3391,7 +3438,7 @@ function _quiz_check_num_random(&$node) {
     return;
   }
   db_delete('quiz_node_relationship')
-    ->condition('question_status', QUESTION_RANDOM)
+    ->condition('question_status', QUIZ_QUESTION_RANDOM)
     ->condition('parent_vid', $node->vid)
     ->execute();
 }
@@ -3619,7 +3666,7 @@ function quiz_get_defaults() {
 function _quiz_get_num_always_questions($vid) {
   return db_query('SELECT COUNT(*) FROM {quiz_node_relationship} qnr
           JOIN {node} n ON n.nid = qnr.child_nid
-          WHERE n.status=1 AND qnr.parent_vid = :parent_vid AND qnr.question_status = :question_status', array(':parent_vid' => $vid, ':question_status' => QUESTION_ALWAYS))->fetchField();
+          WHERE n.status=1 AND qnr.parent_vid = :parent_vid AND qnr.question_status = :question_status', array(':parent_vid' => $vid, ':question_status' => QUIZ_QUESTION_ALWAYS))->fetchField();
 }
 
 /**
@@ -4092,4 +4139,24 @@ function quiz_translate_form_date(&$node, $date) {
     $timestamp = strtotime($human);
     $node->$date = $timestamp;
   }
+}
+
+/**
+ * Clone a result, and its correct answers. Do not finish.
+ */
+function quiz_clone_quiz_result($result_old, $result_new) {
+  $quiz = node_load($result_old->nid, $result_old->vid);
+
+  // Re-take all the questions.
+  foreach ($result_old->layout as $qinfo) {
+    $question = node_load($qinfo['nid'], $qinfo['vid']);
+    $quizQuestionResponse = _quiz_question_response_get_instance($result_old->result_id, $question);
+    if ($quiz->build_on_last == 'all' || $quizQuestionResponse->isCorrect()) {
+      // Override the existing response.
+      $quizQuestionResponse->setResultId($result_new->result_id);
+      $quizQuestionResponse->saveResult();
+    }
+  }
+
+  return $result_new;
 }
