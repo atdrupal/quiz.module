@@ -27,7 +27,7 @@ function quiz_install() {
  * Implements hook_schema().
  */
 function quiz_schema() {
-  require_once dirname(__FILE__) . '/src/Helper/HookImplementation/Schema/Schema7060.php';
+  require_once dirname(__FILE__) . '/src/Schema/Schema7060.php';
   $schema = new Schema7060();
   return $schema->get();
 }
@@ -330,7 +330,7 @@ function quiz_update_7599() {
  * Update schema for quiz when it becomes entity.
  */
 function quiz_update_7600() {
-  require_once dirname(__FILE__) . '/src/Helper/HookImplementation/Schema/Schema7060.php';
+  require_once dirname(__FILE__) . '/src/Schema/Schema7060.php';
   $schema = new Schema7060();
   $tables = $schema->get();
 
