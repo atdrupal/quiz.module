@@ -69,6 +69,8 @@ abstract class QuestionPlugin {
    * @return unknown_type
    */
   public function getEntityForm(array &$form_state = NULL) {
+    global $language;
+
     $form = array(
         // mark this form to be processed by quiz_form_alter. quiz_form_alter will among other things
         // hide the revion fieldset if the user don't have permission to controll the revisioning manually.
@@ -80,6 +82,20 @@ abstract class QuestionPlugin {
         // by other modules effectively.
         'is_quiz_question'            => array('#type' => 'value', '#value' => TRUE),
     );
+
+    if (module_exists('locale') && $this->question->getQuestionType()->data['multilingual']) {
+      $language_options = array();
+      foreach (language_list() as $langcode => $lang) {
+        $language_options[$langcode] = $lang->name;
+      }
+
+      $form['language'] = array(
+          '#type'          => count($language_options) < 5 ? 'radios' : 'select',
+          '#title'         => t('Language'),
+          '#options'       => $language_options,
+          '#default_value' => isset($this->question->language) ? $this->question->language : $language->language,
+      );
+    }
 
     $form['title'] = array(
         '#type'  => 'value',

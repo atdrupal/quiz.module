@@ -197,6 +197,14 @@ function quiz_question_field_extra_fields() {
             ),
         ),
     );
+
+    if (module_exists('locale')) {
+      $extra['quiz_question'][$name]['form']['language'] = array(
+          'label'       => t('Language'),
+          'description' => t('Language selector'),
+          'weight'      => -20,
+      );
+    }
   }
 
   return $extra;
