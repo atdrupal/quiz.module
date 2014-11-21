@@ -10,7 +10,7 @@ class QuizAdminEntityForm {
   public function getForm($form, $form_state) {
     // basic form
     $dummy_quiz = quiz_controller()->getSettingIO()->getSystemDefaultSettings(FALSE);
-    $entity_form = new QuizEntityForm($dummy_quiz);
+    $entity_form = new QuizForm($dummy_quiz);
     $form = $entity_form->get($form, $form_state, 'add');
 
     $form['direction'] = array(

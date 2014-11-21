@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\quiz\Form\QuizEntityForm;
+namespace Drupal\quiz\Form\QuizForm;
 
 use Drupal\quiz\Entity\QuizEntity;
 

@@ -18,7 +18,7 @@ use Drupal\quiz\Entity\Result;
 use Drupal\quiz\Form\QuizAdminEntityForm;
 use Drupal\quiz\Form\QuizAnsweringForm;
 use Drupal\quiz\Form\QuizCategorizedForm;
-use Drupal\quiz\Form\QuizEntityForm;
+use Drupal\quiz\Form\QuizForm;
 use Drupal\quiz\Form\QuizQuestionsForm;
 use Drupal\quiz\Form\QuizReportForm;
 use Drupal\quiz\Form\QuizTypeForm;
@@ -99,19 +99,19 @@ function quiz_entity_adding_page($quiz_type_name) {
  * Define quiz-entity editing form.
  */
 function quiz_entity_form($form, &$form_state, $quiz, $op = 'edit') {
-  $obj = new QuizEntityForm($quiz);
+  $obj = new QuizForm($quiz);
   return $obj->get($form, $form_state, $op);
 }
 
 function quiz_entity_form_validate($form, &$form_state) {
   $quiz = $form_state['quiz_entity'];
-  $obj = new QuizEntityForm($quiz);
+  $obj = new QuizForm($quiz);
   return $obj->validate($form, $form_state);
 }
 
 function quiz_entity_form_submit($form, &$form_state) {
   $quiz = $form_state['quiz_entity'];
-  $obj = new QuizEntityForm($quiz);
+  $obj = new QuizForm($quiz);
   return $obj->submit($form, $form_state);
 }
 

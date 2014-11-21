@@ -6,7 +6,7 @@ use Drupal\quiz\Entity\QuizEntity;
 use Drupal\quiz\Form\QuizEntityForm\FormDefinition;
 use Drupal\quiz\Form\QuizEntityForm\FormValidation;
 
-class QuizEntityForm {
+class QuizForm {
 
   /** @var QuizEntity */
   private $quiz;
