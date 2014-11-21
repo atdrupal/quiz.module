@@ -27,21 +27,23 @@ class QuizTypeController extends EntityAPIControllerExportable {
       ));
     }
 
-    if (!$instance = field_info_instance('quiz_entity', 'quiz_body', $bundle)) {
-      $instance = field_create_instance(array(
+    if (!field_info_instance('quiz_entity', 'quiz_body', $bundle)) {
+      field_create_instance(array(
           'field_name'  => 'quiz_body',
           'entity_type' => 'quiz_entity',
           'bundle'      => $bundle,
           'label'       => t('Body'),
-          'widget'      => array('type' => 'text_textarea_with_summary'),
+          'widget'      => array(
+              'type'     => 'text_textarea_with_summary',
+              'weight'   => -20,
+              'settings' => array('rows' => 5, 'summary_rows' => 3),
+          ),
           'settings'    => array('display_summary' => TRUE),
           'display'     => array(
               'default' => array('label' => 'hidden', 'type' => 'text_default'),
           ),
       ));
     }
-
-    return $instance;
   }
 
 }
