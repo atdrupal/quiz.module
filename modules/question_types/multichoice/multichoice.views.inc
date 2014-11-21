@@ -13,8 +13,8 @@ function multichoice_views_data() {
           'join'  => array(
               'quiz_entity_revision' => array(
                   'left_table' => 'quiz_relationship',
-                  'left_field' => 'question_nid',
-                  'field'      => 'question_nid',
+                  'left_field' => 'question_qid',
+                  'field'      => 'question_qid',
               ),
           ),
       ),
@@ -37,7 +37,7 @@ function multichoice_views_data() {
           ),
           'sort'     => array('handler' => 'views_handler_sort'),
       ),
-      'question_nid' => array(
+      'question_qid' => array(
           'title'        => t('Answers question ID'),
           'help'         => t('The ID of the question.'),
           'argument'     => array(
@@ -99,8 +99,8 @@ function multichoice_views_data() {
           'join'  => array(
               'quiz_entity_revision' => array(
                   'left_table' => 'quiz_relationship',
-                  'left_field' => 'question_nid',
-                  'field'      => 'question_nid',
+                  'left_field' => 'question_qid',
+                  'field'      => 'question_qid',
               ),
           ),
       ),
@@ -149,7 +149,7 @@ function multichoice_views_data() {
               'label'      => t('Result'),
           ),
       ),
-      'question_nid' => array(
+      'question_qid' => array(
           'title'        => t('Result question ID'),
           'help'         => t('The ID of the question.'),
           'argument'     => array(

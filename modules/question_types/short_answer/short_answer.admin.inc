@@ -107,9 +107,9 @@ function short_answer_score_form($form, $context, $question, $answer) {
       '#type'  => 'value',
       '#value' => $answer->rel_max_score,
   );
-  $form['question_nid'] = array(
+  $form['question_qid'] = array(
       '#type'  => 'value',
-      '#value' => $answer->question_nid,
+      '#value' => $answer->question_qid,
   );
   $form['question_vid'] = array(
       '#type'  => 'value',

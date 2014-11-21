@@ -158,7 +158,7 @@ function long_answer_score_an_answer(Result $result, $values, $update_total = TR
         'answer_feedback'        => isset($answer_feedback['value']) ? $answer_feedback['value'] : '',
         'answer_feedback_format' => empty($answer_feedback['format']) ? '' : $answer_feedback['format'],
     ))
-    ->condition('question_nid', $qid)
+    ->condition('question_qid', $qid)
     ->condition('question_vid', $vid)
     ->condition('result_id', $result->result_id)
     ->execute();
@@ -213,17 +213,17 @@ function long_answer_score_an_answer(Result $result, $values, $update_total = TR
  *  is_evaluated; // 0 if the question has not been evaluated, 1 if it has
  *  score; // The score the evaluator gave the user; this should be 0 if is_evaluated is 0.
  *  question_vid
- *  question_nid
+ *  question_qid
  *  result_id
  *  </code>
  */
-function long_answer_get_answer($question_nid, $question_vid, $result_id) {
+function long_answer_get_answer($question_qid, $question_vid, $result_id) {
   $result = db_query('
-    SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_nid, la.result_id, la.answer_feedback, la.answer_feedback_format, rel.max_score AS rel_max_score
+    SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_qid, la.result_id, la.answer_feedback, la.answer_feedback_format, rel.max_score AS rel_max_score
     FROM {quiz_long_answer_user_answers} la
     JOIN {quiz_results} qnr ON (la.result_id = qnr.result_id)
     JOIN {quiz_relationship} rel ON (qnr.quiz_vid = rel.quiz_vid AND rel.question_vid = la.question_vid)
-    WHERE question_nid = :qnid AND question_vid = :qvid AND la.result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
+    WHERE question_qid = :qnid AND question_vid = :qvid AND la.result_id = :rid', array(':qnid' => $question_qid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
   return $result ? $result : FALSE;
 }
 
@@ -244,7 +244,7 @@ function long_answer_get_answer($question_nid, $question_vid, $result_id) {
  */
 function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $offset = 0) {
   $results = db_query('SELECT result_id FROM {quiz_long_answer_user_answers}
-    WHERE is_evaluated = :is_evaluated AND question_nid = :question_nid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid));
+    WHERE is_evaluated = :is_evaluated AND question_qid = :question_qid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_qid' => $nid, ':question_vid' => $vid));
 
   $unscored = array();
   foreach ($results as $result) {
@@ -262,7 +262,7 @@ function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $
  *  Where in the results we should start (default: 0).
  *
  * @return
- *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
+ *  Array of objects describing unanswered questions. Each object will have result_id, question_qid, and question_vid.
  */
 function long_answer_get_all_unscored_answers($count = 50, $offset = 0) {
   $unscored = LongAnswerResponse::fetchAllUnscoredAnswers();
