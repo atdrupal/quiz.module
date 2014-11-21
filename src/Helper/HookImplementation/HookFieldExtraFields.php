@@ -40,42 +40,52 @@ class HookFieldExtraFields {
   }
 
   private function getQuizFormExtraFields() {
-    return array(
-        'taking'            => array(
-            'label'       => t('Taking options'),
-            'description' => t('Fieldset for customizing how a quiz is taken'),
-            'weight'      => 0,
-        ),
-        'quiz_availability' => array(
-            'label'       => t('Availability options'),
-            'description' => t('Fieldset for customizing when a @quiz is available', array('@quiz' => QUIZ_NAME)),
-            'weight'      => 0,
-        ),
+    $elements = array(
         'quiz_help'         => array(
             'label'  => t('Explanation or submission guidelines'),
             'weight' => -25,
         ),
-        'summaryoptions'    => array(
-            'label'       => t('Summary options'),
-            'description' => t('Fieldset for customizing summaries in the @quiz reports', array('@quiz' => QUIZ_NAME)),
-            'weight'      => 0,
-        ),
-        'resultoptions'     => array(
-            'label'       => t('Result options'),
-            'description' => t('Fieldset for customizing result comments in @quiz reports', array('@quiz' => QUIZ_NAME)),
-            'weight'      => 0,
+        'remember_global'   => array(
+            'label'       => t('Remember as global'),
+            'description' => t('Checkbox for remembering quiz settings'),
+            'weight'      => -10,
         ),
         'remember_settings' => array(
             'label'       => t('Remember settings'),
             'description' => t('Checkbox for remembering @quiz settings', array('@quiz' => QUIZ_NAME)),
-            'weight'      => 0,
+            'weight'      => -10,
         ),
-        'remember_global'   => array(
-            'label'       => t('Remember as global'),
-            'description' => t('Checkbox for remembering quiz settings'),
-            'weight'      => 0,
+        'taking'            => array(
+            'label'       => t('Taking options'),
+            'description' => t('Fieldset for customizing how a quiz is taken'),
+            'weight'      => 5,
+        ),
+        'quiz_availability' => array(
+            'label'       => t('Availability options'),
+            'description' => t('Fieldset for customizing when a @quiz is available', array('@quiz' => QUIZ_NAME)),
+            'weight'      => 6,
+        ),
+        'summaryoptions'    => array(
+            'label'       => t('Summary options'),
+            'description' => t('Fieldset for customizing summaries in the @quiz reports', array('@quiz' => QUIZ_NAME)),
+            'weight'      => 7,
+        ),
+        'resultoptions'     => array(
+            'label'       => t('Result options'),
+            'description' => t('Fieldset for customizing result comments in @quiz reports', array('@quiz' => QUIZ_NAME)),
+            'weight'      => 8,
         ),
     );
+
+    if (module_exists('locale')) {
+      $elements['language'] = array(
+          'label'       => t('Language'),
+          'description' => t('Language selector'),
+          'weight'      => -20,
+      );
+    }
+
+    return $elements;
   }
 
 }
