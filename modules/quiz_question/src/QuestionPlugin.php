@@ -279,7 +279,7 @@ abstract class QuestionPlugin {
    */
   public function delete($only_this_version = FALSE) {
     // Delete answeres & properties
-    $remove_answer = db_delete('quiz_results_answers')->condition('question_nid', $this->question->qid);
+    $remove_answer = db_delete('quiz_results_answers')->condition('question_qid', $this->question->qid);
     if ($only_this_version) {
       $remove_answer->condition('question_vid', $this->question->vid);
     }
@@ -317,9 +317,9 @@ abstract class QuestionPlugin {
   public static function elementValidate(&$element, &$form_state) {
     $quiz = quiz_load(quiz_get_id_from_url());
 
-    $question_nid = $element['#array_parents'][1];
-    $answer = $form_state['values']['question'][$question_nid];
-    $current_question = quiz_question_entity_load($question_nid);
+    $question_qid = $element['#array_parents'][1];
+    $answer = $form_state['values']['question'][$question_qid];
+    $current_question = quiz_question_entity_load($question_qid);
 
     // There was an answer submitted.
     $response = quiz_answer_controller()->getInstance($_SESSION['quiz'][$quiz->qid]['result_id'], $current_question, $answer);
@@ -379,7 +379,7 @@ abstract class QuestionPlugin {
     $values = array();
     $values['quiz_qid'] = $quiz_qid;
     $values['quiz_vid'] = $quiz_vid;
-    $values['question_nid'] = $this->question->qid;
+    $values['question_qid'] = $this->question->qid;
     $values['question_vid'] = $this->question->vid;
     $values['max_score'] = $this->getMaximumScore();
     $values['auto_update_max_score'] = $this->autoUpdateMaxScore() ? 1 : 0;
@@ -391,7 +391,7 @@ abstract class QuestionPlugin {
     // Update max_score for relationships if auto update max score is enabled
     // for question
     $update_quiz_ids = array();
-    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_nid = :nid AND question_vid = :vid AND auto_update_max_score = 1';
+    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_qid = :nid AND question_vid = :vid AND auto_update_max_score = 1';
     $result = db_query($sql, array(
         ':nid' => $this->question->qid,
         ':vid' => $this->question->vid));
@@ -401,7 +401,7 @@ abstract class QuestionPlugin {
 
     db_update('quiz_relationship')
       ->fields(array('max_score' => $this->getMaximumScore()))
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->condition('auto_update_max_score', 1)
       ->execute();

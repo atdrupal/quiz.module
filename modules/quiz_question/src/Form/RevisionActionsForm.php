@@ -202,9 +202,9 @@ class RevisionActionsForm {
         'SELECT max_score, auto_update_max_score
             FROM {quiz_relationship}
             WHERE quiz_vid = :quiz_vid
-              AND question_nid = :question_nid', array(
+              AND question_qid = :question_qid', array(
           ':quiz_vid'     => $quiz_vid,
-          ':question_nid' => $form_state['values']['q_qid'],
+          ':question_qid' => $form_state['values']['q_qid'],
         ))->fetch();
 
       $auto_update_max_score = 0;
@@ -227,10 +227,10 @@ class RevisionActionsForm {
          FROM {quiz_relationship}
             WHERE quiz_qid = :quiz_qid
                 AND quiz_vid = :quiz_vid
-                AND question_nid = :question_nid', array(
+                AND question_qid = :question_qid', array(
           ':quiz_qid'     => $quiz_qid,
           ':quiz_vid'     => $quiz_vid,
-          ':question_nid' => $form_state['values']['q_qid'],
+          ':question_qid' => $form_state['values']['q_qid'],
       ));
 
       if ($res_o = $res->fetch()) {
@@ -238,7 +238,7 @@ class RevisionActionsForm {
         db_delete('quiz_relationship')
           ->condition('quiz_qid', $quiz_qid)
           ->condition('quiz_vid', $quiz_vid)
-          ->condition('question_nid', $form_state['values']['q_qid'])
+          ->condition('question_qid', $form_state['values']['q_qid'])
           ->execute();
         $weight = $res_o->weight;
         $question_status = $res_o->question_status;
@@ -257,7 +257,7 @@ class RevisionActionsForm {
       $relationship = (object) array(
             'quiz_qid'              => $quiz_qid,
             'quiz_vid'              => $quiz_vid,
-            'question_nid'          => $form_state['values']['q_qid'],
+            'question_qid'          => $form_state['values']['q_qid'],
             'question_vid'          => $form_state['values']['q_vid'],
             'max_score'             => $max_score,
             'weight'                => $weight,

@@ -107,9 +107,9 @@ function quiz_question_config($form) {
 /**
  * Callback for /quiz-question/%/%/revision-actions
  */
-function quiz_question_revision_actions($form, $form_state, $question_nid, $question_vid) {
+function quiz_question_revision_actions($form, $form_state, $question_qid, $question_vid) {
   $obj = new RevisionActionsForm();
-  return $obj->get($form, $form_state, $question_nid, $question_vid);
+  return $obj->get($form, $form_state, $question_qid, $question_vid);
 }
 
 /**
