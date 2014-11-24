@@ -71,7 +71,8 @@ before_script:
 
 script:
   - php $DRUPAL/scripts/run-tests.sh --list --php `which php` --url 'http://localhost' --color --verbose
-  - php $DRUPAL/scripts/run-tests.sh 'Quiz upgrade' --php `which php` --url 'http://localhost' --color --verbose
+  - php $DRUPAL/scripts/run-tests.sh --class 'QuizUpgradeFrom7x4xBeta2TestCase' --php `which php` --url 'http://localhost' --color --verbose
+  - php $DRUPAL/scripts/run-tests.sh --class 'QuizUpgradeFrom7x5xTestCase' --php `which php` --url 'http://localhost' --color --verbose
   #- drush test-run --dirty --field-labels=0 'Quiz upgrade' --uri=http://localhost:80
   #- drush test-run --dirty --field-labels=0 'Quiz' --uri=http://localhost:80
   #- drush test-run --dirty --field-labels=0 'Quiz question' --uri=http://localhost:80
