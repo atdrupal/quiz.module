@@ -130,7 +130,7 @@ class MultichoiceQuestion extends QuestionPlugin {
     if ($is_new) {
       $id = db_insert('quiz_multichoice_properties')
         ->fields(array(
-            'nid'            => $this->question->qid,
+            'qid'            => $this->question->qid,
             'vid'            => $this->question->vid,
             'choice_multi'   => $this->question->choice_multi,
             'choice_random'  => $this->question->choice_random,
@@ -152,14 +152,14 @@ class MultichoiceQuestion extends QuestionPlugin {
             'choice_random'  => $this->question->choice_random,
             'choice_boolean' => $this->question->choice_boolean,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
 
       // We fetch ids for the existing answers belonging to this question
       // We need to figure out if an existing alternative has been changed or deleted.
       $res = db_query('SELECT id FROM {quiz_multichoice_answers}
-              WHERE question_qid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+              WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
 
       // We start by assuming that all existing alternatives needs to be deleted
       $ids_to_delete = array();
@@ -322,7 +322,7 @@ class MultichoiceQuestion extends QuestionPlugin {
    * @see QuizQuestion#delete()
    */
   public function delete($only_this_version = FALSE) {
-    $delete_properties = db_delete('quiz_multichoice_properties')->condition('nid', $this->question->qid);
+    $delete_properties = db_delete('quiz_multichoice_properties')->condition('qid', $this->question->qid);
     $delete_answers = db_delete('quiz_multichoice_answers')->condition('question_qid', $this->question->qid);
     $delete_results = db_delete('quiz_multichoice_user_answers')->condition('question_qid', $this->question->qid);
 
@@ -334,10 +334,10 @@ class MultichoiceQuestion extends QuestionPlugin {
 
     // Delete from table quiz_multichoice_user_answer_multi
     if ($only_this_version) {
-      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchCol();
+      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchCol();
     }
     else {
-      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :nid', array(':nid' => $this->question->qid))->fetchCol();
+      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid', array(':qid' => $this->question->qid))->fetchCol();
     }
 
     if (!empty($user_answer_id)) {
@@ -363,7 +363,7 @@ class MultichoiceQuestion extends QuestionPlugin {
     $props = parent::load();
 
     $res_a = db_query('SELECT choice_multi, choice_random, choice_boolean FROM {quiz_multichoice_properties}
-            WHERE nid = :nid AND vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
+            WHERE qid = :qid AND vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
       $props = array_merge($props, $res_a);
@@ -877,7 +877,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
    */
   public function delete() {
     $user_answer_id = array();
-    $query = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
+    $query = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid AND question_vid = :vid AND result_id = :result_id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
     while ($user_answer = $query->fetch()) {
       $user_answer_id[] = $user_answer->id;
     }

@@ -56,7 +56,7 @@ class ScaleQuestion extends QuestionPlugin {
     if ($is_new_node) {
       $id = db_insert('quiz_scale_properties')
         ->fields(array(
-            'nid'                  => $this->question->qid,
+            'qid'                  => $this->question->qid,
             'vid'                  => $this->question->vid,
             'answer_collection_id' => $answer_collection_id,
         ))
@@ -67,7 +67,7 @@ class ScaleQuestion extends QuestionPlugin {
         ->fields(array(
             'answer_collection_id' => $answer_collection_id,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -287,7 +287,7 @@ class ScaleQuestion extends QuestionPlugin {
         ->execute();
 
       db_delete('quiz_scale_properties')
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -297,7 +297,7 @@ class ScaleQuestion extends QuestionPlugin {
         ->execute();
 
       db_delete('quiz_scale_properties')
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->execute();
     }
     $this->deleteCollectionIfNotUsed($this->question->{0}->answer_collection_id, 0);
@@ -317,8 +317,8 @@ class ScaleQuestion extends QuestionPlugin {
     $res = db_query('SELECT id, answer, a.answer_collection_id
             FROM {quiz_scale_properties} p
             JOIN {quiz_scale_answer} a ON (p.answer_collection_id = a.answer_collection_id)
-            WHERE nid = :nid AND vid = :vid
-            ORDER BY a.id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+            WHERE qid = :qid AND vid = :vid
+            ORDER BY a.id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
     foreach ($res as $res_o) {
       $props[] = $res_o;
     }
@@ -571,7 +571,7 @@ class ScaleResponse extends QuizQuestionResponse {
       $this->answer_id = intval($answer);
     }
     else {
-      $this->answer_id = db_query('SELECT answer_id FROM {quiz_scale_user_answers} WHERE result_id = :rid AND question_qid = :qnid AND question_vid = :qvid', array(':rid' => $result_id, ':qnid' => $this->question->qid, ':qvid' => $this->question->vid))->fetchField();
+      $this->answer_id = db_query('SELECT answer_id FROM {quiz_scale_user_answers} WHERE result_id = :rid AND question_qid = :qqid AND question_vid = :qvid', array(':rid' => $result_id, ':qqid' => $this->question->qid, ':qvid' => $this->question->vid))->fetchField();
     }
     $answer = db_query('SELECT answer FROM {quiz_scale_answer} WHERE id = :id', array(':id' => $this->answer_id))->fetchField();
     $this->answer = check_plain($answer);

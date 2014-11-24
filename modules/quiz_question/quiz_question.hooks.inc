@@ -216,9 +216,9 @@ function quiz_question_field_extra_fields() {
  * @return
  *  Node containing all of the items from the question plus the user's answer.
  */
-function quiz_question_get_report($nid, $vid, $result_id) {
-  if (!$response_instance = quiz_answer_controller()->getInstance($result_id, NULL, NULL, $nid, $vid)) {
-    drupal_set_message(t('Unable to load question with nid %nid and vid %vid', array('%nid' => $nid, '%vid' => $vid)), 'error');
+function quiz_question_get_report($qid, $vid, $result_id) {
+  if (!$response_instance = quiz_answer_controller()->getInstance($result_id, NULL, NULL, $qid, $vid)) {
+    drupal_set_message(t('Unable to load question with qid %qid and vid %vid', array('%qid' => $qid, '%vid' => $vid)), 'error');
     return FALSE;
   }
 

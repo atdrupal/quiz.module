@@ -63,7 +63,7 @@ class NodeInsertHelper extends NodeHelper {
     $question = quiz_question_entity_load($relationship->question_qid);
 
     // Set variables we can't or won't carry with us to the translated node to NULL.
-    $question->nid = $question->vid = $question->created = $question->changed = NULL;
+    $question->qid = $question->vid = $question->created = $question->changed = NULL;
     $question->revision_timestamp = $question->menu = $question->path = NULL;
     $question->files = array();
     if (isset($question->book['mlid'])) {
@@ -81,7 +81,7 @@ class NodeInsertHelper extends NodeHelper {
       ->fields(array(
           'quiz_qid'              => $quiz->qid,
           'quiz_vid'              => $quiz->vid,
-          'question_qid'          => $question->nid,
+          'question_qid'          => $question->qid,
           'question_vid'          => $question->vid,
           'question_status'       => $relationship->question_status,
           'weight'                => $relationship->weight,

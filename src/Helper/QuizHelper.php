@@ -76,14 +76,14 @@ class QuizHelper {
    * @return
    *   TRUE if there exists answers to the current question.
    */
-  public function isAnswered($node) {
-    if (!isset($node->nid)) {
+  public function isAnswered($quiz) {
+    if (!isset($quiz->qid)) {
       return FALSE;
     }
-    $query = db_select('quiz_results', 'qnr');
-    $query->addField('qnr', 'result_id');
-    $query->condition('nid', $node->nid);
-    $query->condition('vid', $node->vid);
+    $query = db_select('quiz_results', 'result');
+    $query->addField('result', 'result_id');
+    $query->condition('quiz_qid', $quiz->qid);
+    $query->condition('quiz_vid', $quiz->vid);
     $query->range(0, 1);
     return $query->execute()->rowCount() > 0;
   }

@@ -85,8 +85,8 @@ class TrueFalseQuestion extends QuestionPlugin {
 
     $res_a = db_query('SELECT correct_answer '
       . ' FROM {quiz_truefalse} '
-      . ' WHERE nid = :nid AND vid = :vid', array(
-        ':nid' => $this->question->qid,
+      . ' WHERE qid = :qid AND vid = :vid', array(
+        ':qid' => $this->question->qid,
         ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
@@ -195,7 +195,7 @@ class TrueFalseQuestion extends QuestionPlugin {
    * This is a utility function. It is not defined in the interface.
    */
   public function getCorrectAnswer() {
-    return db_query('SELECT correct_answer FROM {quiz_truefalse} WHERE nid = :nid AND vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchField();
+    return db_query('SELECT correct_answer FROM {quiz_truefalse} WHERE qid = :qid AND vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchField();
   }
 
 }

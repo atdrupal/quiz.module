@@ -177,7 +177,7 @@ class FormSubmission extends QuizTakeBaseController {
       $current_question = quiz_question_entity_load($qinfo['nid'], $qinfo['vid']);
 
       foreach ($this->result->layout as $question) {
-        if ($question['nid'] == $current_question->nid) {
+        if ($question['nid'] == $current_question->qid) {
           $question_array = $question;
         }
       }

@@ -268,21 +268,21 @@ class DDLinesQuestion extends QuestionPlugin {
    * @see QuizQuestion#delete()
    */
   public function delete($only_this_version = FALSE) {
-    $delete_node = db_delete('quiz_ddlines_question')->condition('nid', $this->question->qid);
+    $delete_question = db_delete('quiz_ddlines_question')->condition('qid', $this->question->qid);
     $delete_results = db_delete('quiz_ddlines_user_answers')->condition('question_qid', $this->question->qid);
 
     if ($only_this_version) {
-      $delete_node->condition('vid', $this->question->vid);
+      $delete_question->condition('vid', $this->question->vid);
       $delete_results->condition('question_vid', $this->question->vid);
     }
 
     // Delete from table quiz_ddlines_user_answer_multi
     $user_answer_ids = array();
     if ($only_this_version) {
-      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
     }
     else {
-      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :nid', array(':nid' => $this->question->qid));
+      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid', array(':qid' => $this->question->qid));
     }
     while ($user_answer = $query->fetch()) {
       $user_answer_ids[] = $user_answer->id;
@@ -294,7 +294,7 @@ class DDLinesQuestion extends QuestionPlugin {
         ->execute();
     }
 
-    $delete_node->execute();
+    $delete_question->execute();
     $delete_results->execute();
     parent::delete($only_this_version);
   }
@@ -365,7 +365,7 @@ class DDLinesResponse extends QuizQuestionResponse {
   public function delete() {
 
     $user_answer_ids = array();
-    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
+    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid AND question_vid = :vid AND result_id = :result_id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
     while ($answer = $query->fetch()) {
       $user_answer_ids[] = $answer->id;
     }

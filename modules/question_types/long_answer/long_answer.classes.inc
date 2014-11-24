@@ -28,7 +28,7 @@ class LongAnswerQuestion extends QuestionPlugin {
     if ($is_new || $this->question->revision == 1) {
       db_insert('quiz_long_answer_properties')
         ->fields(array(
-            'nid'    => $this->question->qid,
+            'qid'    => $this->question->qid,
             'vid'    => $this->question->vid,
             'rubric' => $this->question->rubric,
         ))
@@ -37,7 +37,7 @@ class LongAnswerQuestion extends QuestionPlugin {
     else {
       db_update('quiz_long_answer_properties')
         ->fields(array('rubric' => isset($this->question->rubric) ? $this->question->rubric : ''))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -64,13 +64,13 @@ class LongAnswerQuestion extends QuestionPlugin {
         ->condition('question_vid', $this->question->vid)
         ->execute();
       db_delete('quiz_long_answer_properties')
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
     else {
       db_delete('quiz_long_answer_properties')
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->execute();
       db_delete('quiz_long_answer_user_answers')
         ->condition('question_qid', $this->question->qid)
@@ -93,8 +93,8 @@ class LongAnswerQuestion extends QuestionPlugin {
     $res_a = db_query(
       'SELECT rubric
        FROM {quiz_long_answer_properties}
-       WHERE nid = :nid AND vid = :vid', array(
-        ':nid' => $this->question->qid,
+       WHERE qid = :qid AND vid = :vid', array(
+        ':qid' => $this->question->qid,
         ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
@@ -242,8 +242,8 @@ class LongAnswerResponse extends QuizQuestionResponse {
   /**
    * Given a quiz, return a list of all of the unscored answers.
    *
-   * @param $nid
-   *  Node ID for the quiz to check.
+   * @param $qid
+   *  Question ID for the quiz to check.
    * @param $vid
    *  Version ID for the quiz to check.
    * @param $count
@@ -254,11 +254,15 @@ class LongAnswerResponse extends QuizQuestionResponse {
    * @return
    *  Indexed array of result IDs that need to be scored.
    */
-  public static function fetchUnscoredAnswersByQuestion($nid, $vid, $count = 50, $offset = 0) {
+  public static function fetchUnscoredAnswersByQuestion($qid, $vid, $count = 50, $offset = 0) {
     $results = db_query('SELECT result_id FROM {quiz_long_answer_user_answers}
       WHERE is_evaluated = :is_evaluated
       AND question_qid = :question_qid
-      AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_qid' => $nid, ':question_vid' => $vid));
+      AND question_vid = :question_vid', array(
+        ':is_evaluated' => 0,
+        ':question_qid' => $qid,
+        ':question_vid' => $vid
+    ));
     $unscored = array();
     foreach ($results as $row) {
       $unscored[] = $row->result_id;
@@ -283,10 +287,10 @@ class LongAnswerResponse extends QuizQuestionResponse {
       $row = db_query(
         'SELECT answer_id, answer, is_evaluated, score, question_vid, question_qid, result_id, answer_feedback, answer_feedback_format
         FROM {quiz_long_answer_user_answers}
-        WHERE question_qid = :qnid AND question_vid = :qvid AND result_id = :rid', array(
-          ':qnid' => $question->qid,
-          ':qvid' => $question->vid,
-          ':rid'  => $result_id))->fetch();
+        WHERE question_qid = :question_id AND question_vid = :question_vid AND result_id = :rid', array(
+          ':question_id'  => $question->qid,
+          ':question_vid' => $question->vid,
+          ':rid'          => $result_id))->fetch();
       if (!empty($row)) {
         $this->answer = $row->answer;
         $this->score = $row->score;
