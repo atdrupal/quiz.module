@@ -17,7 +17,7 @@ function short_answer_install() {
  */
 function short_answer_schema() {
   // Properties for a question nodes go in here:
-  $schema['quiz_short_answer_node_properties'] = array(
+  $schema['quiz_short_answer_properties'] = array(
       'fields'      => array(
           'qid'                       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,),
           'vid'                       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,),
