@@ -85,7 +85,7 @@ class ResultController extends EntityAPIController {
 
       $result->layout[$answer->number] = array(
           'display_number' => $answer->number,
-          'nid'            => $answer->question_qid,
+          'qid'            => $answer->question_qid,
           'vid'            => $answer->question_vid,
           'number'         => $answer->number,
           'type'           => $extra->type,

@@ -129,7 +129,7 @@ class QuestionIO {
   /**
    * Get an array list of random questions for a quiz.
    *
-   * @return array[] Array of nid/vid combos for quiz questions.
+   * @return array[] Array of qid/vid combos for quiz questions.
    */
   private function getRandomQuestions() {
     $amount = $this->quiz->number_of_random_questions;
@@ -160,13 +160,13 @@ class QuestionIO {
   }
 
   /**
-   * Get all of the question nid/vids by taxonomy term ID.
+   * Get all of the question qid/vids by taxonomy term ID.
    *
    * @param int $term_id
    * @param int $amount
    *
    * @return
-   *   Array of nid/vid combos, like array(array('nid'=>1, 'vid'=>2)).
+   *   Array of qid/vid combos, like array(array('qid'=>1, 'vid'=>2)).
    */
   public function getRandomTaxonomyQuestionIds($term_id, $amount) {
     if (!$term_id || !$term = taxonomy_term_load($term_id)) {
@@ -187,7 +187,7 @@ class QuestionIO {
     $query->addExpression(1, 'random');
 
     return $query
-        ->fields('question', array('nid', 'vid'))
+        ->fields('question', array('qid', 'vid'))
         ->condition('question.status', 1)
         ->condition('tn.tid', $term_ids)
         ->condition('question.type', array_keys(quiz_question_get_types()))
