@@ -30,8 +30,7 @@ class NodeInsertHelper extends NodeHelper {
         $questions[$question['qid']]->state = $question->question_status;
         $questions[$question['qid']]->refresh = 0;
       }
-
-      $quiz->getQuestionIO()->setQuestions($questions);
+      # $quiz->getQuestionIO()->setRelationships($questions);
     }
 
     $this->presaveActions($quiz);

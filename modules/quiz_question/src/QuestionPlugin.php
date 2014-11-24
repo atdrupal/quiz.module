@@ -3,7 +3,7 @@
 namespace Drupal\quiz_question;
 
 use Drupal\quiz\Controller\QuizQuestionFeedbackController;
-use Drupal\quiz_question\Entity\Question;
+use Drupal\quiz\Entity\QuizEntity;
 
 /**
  * QUESTION IMPLEMENTATION FUNCTIONS
@@ -68,16 +68,14 @@ abstract class QuestionPlugin {
    * @param array $form_state
    * @return unknown_type
    */
-  public function getEntityForm(array &$form_state = NULL) {
+  public function getEntityForm(array &$form_state = NULL, QuizEntity $quiz = NULL) {
     global $language;
 
     $form = array(
         // mark this form to be processed by quiz_form_alter. quiz_form_alter will among other things
         // hide the revion fieldset if the user don't have permission to controll the revisioning manually.
         '#quiz_check_revision_access' => TRUE,
-        // Store quiz id in the form
-        'quiz_qid'                    => array('#type' => 'hidden', '#default_value' => isset($_GET['quiz_qid']) ? $_GET['quiz_qid'] : NULL),
-        'quiz_vid'                    => array('#type' => 'hidden', '#default_value' => isset($_GET['quiz_vid']) ? $_GET['quiz_vid'] : NULL),
+        '#quiz'                       => $quiz,
         // Identify this node as a quiz question type so that it can be recognized
         // by other modules effectively.
         'is_quiz_question'            => array('#type' => 'value', '#value' => TRUE),

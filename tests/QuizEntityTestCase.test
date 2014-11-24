@@ -193,7 +193,7 @@ class QuizEntityTestCase extends QuizTestCase {
     $quiz = $this->linkQuestionToQuiz($question = $this->drupalCreateQuestion(array(
         'type'           => 'truefalse',
         'title'          => 'Revision TRUE',
-        'body'           => array(LANGUAGE_NONE => array(array('value' => 'Revision TRUE'))),
+        'body'           => 'Revision TRUE',
         'correct_answer' => 1,
     )));
 

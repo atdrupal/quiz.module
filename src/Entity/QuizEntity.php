@@ -14,6 +14,9 @@ class QuizEntity extends Entity {
   /** @var int Quiz Revision ID */
   public $vid;
 
+  /** @var int Version ID of quiz before new revision created. */
+  public $old_vid;
+
   /**
    * Status of a quiz.
    *
@@ -96,6 +99,10 @@ class QuizEntity extends Entity {
       if (!isset($this->{$k})) {
         $this->{$k} = $v;
       }
+    }
+
+    if (!empty($this->is_new_revision) && !empty($this->vid)) {
+      $this->old_vid = $this->vid;
     }
 
     return parent::save();
