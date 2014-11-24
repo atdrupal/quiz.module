@@ -70,10 +70,11 @@ before_script:
   - drush cc all
 
 script:
-  - drush test-run --dirty --field-labels=0 'Quiz' --uri=http://localhost:80
-  - drush test-run --dirty --field-labels=0 'Quiz question' --uri=http://localhost:80
-  # Passed on local, failed on Travis :/
-  # - drush test-run --dirty --field-labels=0 'Quiz upgrade' --uri=http://localhost:80
+  - php $DRUPAL/scripts/run-tests.sh --php `which php` --url 'http://localhost' --color 'Quiz'
+  - php $DRUPAL/scripts/run-tests.sh --php `which php` --url 'http://localhost' --color 'Quiz question'
+  # Being failed
+  # - php $DRUPAL/scripts/run-tests.sh --php `which php` --url 'http://localhost' --color --verbose --class 'QuizUpgradeFrom7x4xBeta2TestCase'
+  - php $DRUPAL/scripts/run-tests.sh --php `which php` --url 'http://localhost' --color --class 'QuizUpgradeFrom7x5xTestCase'
 
 notifications:
   email: false
