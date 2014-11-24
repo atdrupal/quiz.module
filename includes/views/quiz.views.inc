@@ -52,7 +52,7 @@ function quiz_views_handlers() {
               'parent' => 'views_handler_filter',
           ),
           // Relationships
-          'quiz_views_handler_relationship_vid_from_nid'  => array(
+          'quiz_views_handler_relationship_vid_from_qid'  => array(
               'parent' => 'views_handler_relationship',
           ),
           // Arguments

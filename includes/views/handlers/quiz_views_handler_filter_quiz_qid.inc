@@ -97,7 +97,7 @@ class quiz_views_handler_filter_quiz_qid extends views_handler_filter {
 
   /**
    * Override the default behavior of query() to introduce the medial step of
-   * retrieving vids from the provided nids.
+   * retrieving vids from the provided qids.
    */
   function query() {
     $this->ensure_my_table();
@@ -136,7 +136,7 @@ class quiz_views_handler_filter_quiz_qid extends views_handler_filter {
     $subselect = "SELECT $operation($subalias.$this->secondary_vid) FROM ";
     $subselect .= '{' . $this->secondary_table . "} $subalias WHERE ";
     $subselect .= "$subalias.$this->secondary_group_by = $this->secondary_table_alias.$this->secondary_group_by AND ";
-    $subselect .= "$subalias.$this->secondary_nid = $this->secondary_table_alias.$this->secondary_nid";
+    $subselect .= "$subalias.$this->secondary_qid = $this->secondary_table_alias.$this->secondary_qid";
     return $subselect;
   }
 
