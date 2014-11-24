@@ -72,7 +72,7 @@ before_script:
 script:
   # Passed on local, failed on Travis :/
   - drush test-run --dirty --field-labels=0 'Quiz upgrade' --uri=http://localhost:80
-  - php $DRUPAL/scripts/run-tests.sh 'Quiz upgrade' --url 'http://localhost' --color --verbose
+  - php $DRUPAL/scripts/run-tests.sh 'Quiz upgrade' --php=`which php` --url 'http://localhost' --color --verbose
   - drush test-run --dirty --field-labels=0 'Quiz' --uri=http://localhost:80
   - drush test-run --dirty --field-labels=0 'Quiz question' --uri=http://localhost:80
 
