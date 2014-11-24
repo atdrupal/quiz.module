@@ -50,7 +50,7 @@ class QuizAnsweringForm {
 
     foreach ($result->layout as $item) {
       if ($page_id == $item['qr_pid']) {
-        $questions[] = quiz_question_entity_load($item['nid']);
+        $questions[] = quiz_question_entity_load($item['qid']);
       }
     }
 
@@ -121,11 +121,11 @@ class QuizAnsweringForm {
       $sql = 'SELECT is_doubtful '
         . ' FROM {quiz_results_answers} '
         . ' WHERE result_id = :result_id '
-        . '   AND question_nid = :question_nid '
+        . '   AND question_qid = :question_qid '
         . '   AND question_vid = :question_vid';
       $form['is_doubtful']['#default_value'] = db_query($sql, array(
           ':result_id'    => $this->result->result_id,
-          ':question_nid' => $question->qid,
+          ':question_qid' => $question->qid,
           ':question_vid' => $question->vid))->fetchField();
     }
   }

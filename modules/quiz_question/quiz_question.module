@@ -163,10 +163,10 @@ function quiz_question_report_form(Result $result, Question $question) {
         FROM {quiz_results} result
          JOIN {quiz_results_answers} answer ON (result.result_id = answer.result_id)
          JOIN {quiz_terms} qt ON (qt.vid = result.quiz_vid AND qt.tid = answer.tid)
-         WHERE result.result_id = :rid AND answer.question_nid = :qnid AND answer.question_vid = :qvid', array(
-          ':rid'  => $result->result_id,
-          ':qnid' => $question->qid,
-          ':qvid' => $question->vid
+         WHERE result.result_id = :rid AND answer.question_qid = :question_id AND answer.question_vid = :question_vid', array(
+          ':rid'          => $result->result_id,
+          ':question_id'  => $question->qid,
+          ':question_vid' => $question->vid
         ))->fetchField();
     }
 

@@ -326,21 +326,31 @@ class QuizQuestionsForm extends QuizQuestionsBaseForm {
   }
 
   /**
+   * @param array $form_state
+   * @return QuizEntity
+   */
+  private function formSubmitFindQuiz($form_state) {
+    $quiz = quiz_load(quiz_get_id_from_url());
+
+    // Update the refresh latest quizzes table so that we know what the users latest quizzes are
+    $new_revision = variable_get('quiz_auto_revisioning', 1) ? quiz_has_been_answered($quiz) : (bool) $form_state['values']['new_revision'];
+    if ($new_revision) {
+      $quiz->is_new_revision = $new_revision;
+      $quiz->old_vid = $quiz->vid;
+      $quiz->save();
+    }
+
+    return $quiz;
+  }
+
+  /**
    * Submit function for quiz_questions.
    * Updates from the "manage questions" tab.
    */
   public function formSubmit($form, &$form_state) {
-    $quiz = quiz_load(quiz_get_id_from_url());
+    $quiz = $this->formSubmitFindQuiz($form_state);
 
-    // Update the refresh latest quizzes table so that we know what the users latest quizzes are
-    if (variable_get('quiz_auto_revisioning', 1)) {
-      $is_new_revision = quiz_has_been_answered($quiz);
-    }
-    else {
-      $is_new_revision = (bool) $form_state['values']['new_revision'];
-    }
-
-    $this->questionBrowserSubmit($form, $form_state);
+    $this->formSubmitQuestionBrowser($form_state);
 
     $weight_map = isset($form_state['values']['weights']) ? $form_state['values']['weights'] : array();
     $qr_pids_map = isset($form_state['values']['qr_pids']) ? $form_state['values']['qr_pids'] : array();
@@ -355,13 +365,13 @@ class QuizQuestionsForm extends QuizQuestionsBaseForm {
     $term_id = isset($form_state['values']['random_term_id']) ? (int) $form_state['values']['random_term_id'] : 0;
 
     // Store what questions belong to the quiz
-    $questions = $this->updateItems($quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $qr_ids_map, $qr_pids_map, $compulsories, $stayers);
+    $relationships = $this->updateItems($quiz, $weight_map, $max_scores, $auto_update_max_scores, $refreshes, $stayers, $qr_ids_map, $qr_pids_map, $compulsories, $stayers);
 
     // If using random questions and no term ID is specified, make sure we have enough.
     if (empty($term_id)) {
       $assigned_random = 0;
-      foreach ($questions as $question) {
-        if ($question->state == QUIZ_QUESTION_RANDOM) {
+      foreach ($relationships as $relationship) {
+        if (QUIZ_QUESTION_RANDOM == $relationship->state) {
           ++$assigned_random;
         }
       }
@@ -393,7 +403,6 @@ class QuizQuestionsForm extends QuizQuestionsBaseForm {
     $quiz->max_score_for_random = $quiz->max_score_for_random;
     $quiz->tid = $term_id;
     $quiz->max_score = $quiz->max_score_for_random * $quiz->number_of_random_questions + $score['sum'];
-    $quiz->is_new_revision = $is_new_revision;
 
     if (entity_save('quiz_entity', $quiz)) {
       drupal_set_message(t('Questions updated successfully.'));
@@ -409,33 +418,31 @@ class QuizQuestionsForm extends QuizQuestionsBaseForm {
    * This function changes the form_state to reflect questions added via the browser.
    * (Especially if js is disabled)
    */
-  private function questionBrowserSubmit($form, &$form_state) {
+  private function formSubmitQuestionBrowser(&$form_state) {
     // Find the biggest weight:
-    $next_weight = isset($form_state['values']['weights']) ? max($form_state['values']['weights']) : 0;
+    $weight = isset($form_state['values']['weights']) ? max($form_state['values']['weights']) : 0;
 
     // If a question is chosen in the browser, add it to the question list if it isn't already there
-    if (isset($form_state['values']['browser']['table']['titles'])) {
-      foreach ($form_state['values']['browser']['table']['titles'] as $id) {
-        if ($id) {
-          list($question_qid, $question_vid) = explode('-', $id, 2);
-          $question = quiz_question_entity_load($question_qid, $question_vid);
-          $form_state['values']['weights'][$id] = ++$next_weight;
-          $form_state['values']['max_scores'][$id] = $question->max_score;
-          $form_state['values']['stayers'][$id] = 1;
-        }
+    $titles = isset($form_state['values']['browser']['table']['titles']) ? $form_state['values']['browser']['table']['titles'] : array();
+    foreach ($titles as $id) {
+      if ($id) {
+        list($question_qid, $question_vid) = explode('-', $id, 2);
+        $question = quiz_question_entity_load($question_qid, $question_vid);
+        $form_state['values']['weights'][$id] = ++$weight;
+        $form_state['values']['max_scores'][$id] = $question->max_score;
+        $form_state['values']['stayers'][$id] = 1;
       }
     }
   }
 
   /**
    * Update a quiz set of items with new weights and membership
-   * @param $quiz
-   *   The quiz entity
-   * @param $weight_map
+   * @param QuizEntity $quiz
+   * @param int $weight_map
    *   Weights for each question(determines the order in which the question will be taken by the quiz taker)
    * @param $max_scores
    *   Array of max scores for each question
-   * @param $is_new_revision
+   * @param $new_revision
    *   Array of boolean values determining if the question is to be updated to the newest revision
    * @param $refreshes
    *   True if we are creating a new revision of the quiz
@@ -445,39 +452,42 @@ class QuizQuestionsForm extends QuizQuestionsBaseForm {
    *   Array of boolean values determining if the question is compulsory or not.
    * @return array set of questions after updating
    */
-  private function updateItems(QuizEntity $quiz, $weight_map, $max_scores, $auto_update_max_scores, $is_new_revision, $refreshes, $stayers, $qr_ids, $qr_pids, $compulsories = NULL) {
-    $questions = array();
+  private function updateItems(QuizEntity $quiz, $weight_map, $max_scores, $auto_update_max_scores, $refreshes, $stayers, $qr_ids, $qr_pids, $compulsories = NULL) {
+    $relationships = array();
+
     foreach ($weight_map as $id => $weight) {
       if ($stayers[$id]) {
         continue;
       }
 
-      list($qid, $vid) = explode('-', $id, 2);
-      $question = entity_create('quiz_question', array(
-          'qid'                   => (int) $qid,
-          'vid'                   => (int) $vid,
+      list($question_qid, $question_vid) = explode('-', $id, 2);
+      $relationship = entity_create('quiz_question_relationship', array(
+          'quiz_qid'              => $quiz->qid,
+          'quiz_vid'              => $quiz->vid,
+          'qid'                   => (int) $question_qid,
+          'vid'                   => (int) $question_vid,
           'weight'                => $weight,
           'auto_update_max_score' => $auto_update_max_scores[$id],
           'qr_pid'                => $qr_pids[$id] > 0 ? $qr_pids[$id] : NULL,
           'qr_id'                 => $qr_ids[$id] > 0 ? $qr_ids[$id] : NULL,
-          'refresh'               => (isset($refreshes[$id]) && $refreshes[$id] == 1),
+          'refresh'               => isset($refreshes[$id]) && $refreshes[$id] == 1,
           'state'                 => QUIZ_QUESTION_ALWAYS,
       ));
 
       if (isset($compulsories) && $compulsories[$id] != 1) {
-        $question->state = QUIZ_QUESTION_RANDOM;
+        $relationship->state = QUIZ_QUESTION_RANDOM;
         $max_scores[$id] = $quiz->max_score_for_random;
       }
 
-      $question->max_score = $max_scores[$id];
+      $relationship->max_score = $max_scores[$id];
 
       // Add item as an object in the questions array.
-      $questions[] = $question;
+      $relationships[] = $relationship;
     }
 
-    $quiz->getQuestionIO()->setQuestions($questions, $is_new_revision);
+    $quiz->getQuestionIO()->setRelationships($relationships);
 
-    return $questions;
+    return $relationships;
   }
 
 }

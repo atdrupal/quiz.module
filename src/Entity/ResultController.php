@@ -74,18 +74,18 @@ class ResultController extends EntityAPIController {
       // current version to get the hieararchy.
       $select = db_select('quiz_results', 'result');
       $select->innerJoin('quiz_relationship', 'relationship', 'result.quiz_vid = relationship.quiz_vid');
-      $select->innerJoin('quiz_question', 'question', 'relationship.question_nid = question.qid');
+      $select->innerJoin('quiz_question', 'question', 'relationship.question_qid = question.qid');
       $extra = $select
         ->fields('question', array('type'))
         ->fields('relationship', array('qr_id', 'qr_pid'))
         ->condition('result.result_id', $result->result_id)
-        ->condition('question.qid', $answer->question_nid)
+        ->condition('question.qid', $answer->question_qid)
         ->execute()
         ->fetch();
 
       $result->layout[$answer->number] = array(
           'display_number' => $answer->number,
-          'nid'            => $answer->question_nid,
+          'qid'            => $answer->question_qid,
           'vid'            => $answer->question_vid,
           'number'         => $answer->number,
           'type'           => $extra->type,
@@ -125,11 +125,11 @@ class ResultController extends EntityAPIController {
    */
   private function callPluginDeleteMethod($result_ids) {
     $select = db_select('quiz_results_answers', 'answer');
-    $select->fields('answer', array('result_id', 'question_nid', 'question_vid'));
+    $select->fields('answer', array('result_id', 'question_qid', 'question_vid'));
     $select->condition('answer.result_id', $result_ids);
     $answers = $select->execute()->fetchAll();
     foreach ($answers as $answer) {
-      if ($answer_instance = quiz_answer_controller()->getInstance($answer->result_id, NULL, NULL, $answer->question_nid, $answer->question_vid)) {
+      if ($answer_instance = quiz_answer_controller()->getInstance($answer->result_id, NULL, NULL, $answer->question_qid, $answer->question_vid)) {
         $answer_instance->delete();
       }
     }

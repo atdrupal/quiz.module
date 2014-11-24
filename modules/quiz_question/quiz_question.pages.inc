@@ -54,7 +54,14 @@ function quiz_question_adding_page($question_type_name) {
  * @return array
  */
 function quiz_question_form($form, &$form_state, $question, $op = 'edit') {
-  $form += $question->getPlugin()->getEntityForm($form_state);
+  $drupal_destination = drupal_get_destination();
+  if (isset($drupal_destination['destination']) && ($item = menu_get_item($drupal_destination['destination'])) && $item['access']) {
+    if ('quiz/%/questions' === $item['path']) {
+      $quiz = $item['map'][1];
+    }
+  }
+
+  $form += $question->getPlugin()->getEntityForm($form_state, isset($quiz) ? $quiz : NULL);
 
   // question body is required.
   $form['quiz_question_body'][LANGUAGE_NONE][0]['#required'] = TRUE;
@@ -71,8 +78,17 @@ function quiz_question_form_validate($form, &$form_state) {
 function quiz_question_form_submit($form, &$form_state) {
   /* @var $question Question */
   $question = entity_ui_controller('quiz_question')->entityFormSubmitBuildEntity($form, $form_state);
+
+  if (!empty($form['#quiz']) && is_null($question->qid)) {
+    $quiz = $form['#quiz'];
+  }
+
   $question->save();
   $form_state['redirect'] = 'quiz-question/' . $question->qid;
+
+  if (!empty($quiz)) {
+    $question->getPlugin()->saveRelationships($quiz->qid, $quiz->vid);
+  }
 }
 
 function quiz_question_form_submit_delete($form, &$form_state) {
@@ -107,9 +123,9 @@ function quiz_question_config($form) {
 /**
  * Callback for /quiz-question/%/%/revision-actions
  */
-function quiz_question_revision_actions($form, $form_state, $question_nid, $question_vid) {
+function quiz_question_revision_actions($form, $form_state, $question_qid, $question_vid) {
   $obj = new RevisionActionsForm();
-  return $obj->get($form, $form_state, $question_nid, $question_vid);
+  return $obj->get($form, $form_state, $question_qid, $question_vid);
 }
 
 /**

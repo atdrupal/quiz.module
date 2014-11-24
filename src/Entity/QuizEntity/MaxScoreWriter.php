@@ -6,7 +6,7 @@ class MaxScoreWriter {
 
   /**
    * Updates the max_score property on the specified quizzes
-   * 
+   *
    * @param int[] $quiz_vids
    *  Array with the vid's of the quizzes to update
    */
@@ -57,7 +57,7 @@ class MaxScoreWriter {
     // Max score = sum of max score of each question in quiz.
     $_score = 'SELECT COALESCE(SUM(qt.max_score * qt.number), 0)';
     $_score .= ' FROM {quiz_terms} qt';
-    $_score .= ' WHERE qt.nid = {quiz_entity_revision}.qid AND qt.vid = {quiz_entity_revision}.vid';
+    $_score .= ' WHERE qt.qid = {quiz_entity_revision}.qid AND qt.vid = {quiz_entity_revision}.vid';
     db_update('quiz_entity_revision')
       ->expression('max_score', "($_score)")
       ->condition('randomization', QUIZ_QUESTION_CATEGORIZED_RANDOM)

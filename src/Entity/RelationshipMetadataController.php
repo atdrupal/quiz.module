@@ -10,7 +10,7 @@ class RelationshipMetadataController extends EntityDefaultMetadataController {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
 
-    $properties['question_nid']['type'] = 'node';
+    $properties['question_qid']['type'] = 'node';
     $properties['question_vid']['type'] = 'integer';
     $properties['quiz_qid']['type'] = 'node';
     $properties['quiz_vid']['type'] = 'integer';

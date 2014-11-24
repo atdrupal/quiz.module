@@ -32,7 +32,7 @@ class NodeUpdateHelper extends NodeHelper {
   private function updateQuestionRelationship($old_quiz_vid, $quiz_vid, $quiz_qid) {
     // query for questions in previous version
     $result = db_select('quiz_relationship', 'qnr')
-      ->fields('qnr', array('quiz_qid', 'question_nid', 'question_vid', 'question_status', 'weight', 'max_score', 'auto_update_max_score', 'qr_id', 'qr_pid'))
+      ->fields('qnr', array('quiz_qid', 'question_qid', 'question_vid', 'question_status', 'weight', 'max_score', 'auto_update_max_score', 'qr_id', 'qr_pid'))
       ->condition('quiz_qid', $quiz_qid)
       ->condition('quiz_vid', $old_quiz_vid)
       ->condition('question_status', QUIZ_QUESTION_NEVER, '!=')
@@ -63,17 +63,17 @@ class NodeUpdateHelper extends NodeHelper {
 
     /* Update terms if any */
     $result = db_select('quiz_terms', 'qt')
-      ->fields('qt', array('nid', 'tid', 'weight', 'max_score', 'number'))
+      ->fields('qt', array('qid', 'tid', 'weight', 'max_score', 'number'))
       ->condition('vid', $old_quiz_vid)
       ->execute();
 
     // only proceed if query returned data
     if ($result->rowCount()) {
       $insert_query = db_insert('quiz_terms')
-        ->fields(array('nid', 'vid', 'tid', 'weight', 'max_score', 'number'));
+        ->fields(array('qid', 'vid', 'tid', 'weight', 'max_score', 'number'));
       while ($quiz_term = $result->fetchAssoc()) {
         $insert_query->values(array(
-            'nid'       => $quiz_qid,
+            'qid'       => $quiz_qid,
             'vid'       => $quiz_vid,
             'tid'       => $quiz_term['tid'],
             'weight'    => $quiz_term['weight'],

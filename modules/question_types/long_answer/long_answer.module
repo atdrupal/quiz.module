@@ -125,8 +125,8 @@ function long_answer_theme() {
  * @param Result $result
  * @param \Drupal\quiz\Entity\QuizEntity $quiz
  *  Quiz entity.
- * @param $nid
- *  Node ID of question.
+ * @param $qid
+ *  ID of question.
  * @param $vid
  *  Version ID of question.
  * @param $score
@@ -158,7 +158,7 @@ function long_answer_score_an_answer(Result $result, $values, $update_total = TR
         'answer_feedback'        => isset($answer_feedback['value']) ? $answer_feedback['value'] : '',
         'answer_feedback_format' => empty($answer_feedback['format']) ? '' : $answer_feedback['format'],
     ))
-    ->condition('question_nid', $qid)
+    ->condition('question_qid', $qid)
     ->condition('question_vid', $vid)
     ->condition('result_id', $result->result_id)
     ->execute();
@@ -198,14 +198,10 @@ function long_answer_score_an_answer(Result $result, $values, $update_total = TR
  * Get the answer for a question.
  *
  * This stores a score for a long answer question and marks that question as having been evaluated.
- * @param $nid
- *  Node ID of question.
- * @param $vid
- *  Version ID of question.
- * @param $result_id
- *  Result ID for the quiz results.
- *
- * @return Assoc array
+ * @param int $question_qid
+ * @param int $question_vid
+ * @param int $result_id
+ * @return array
  *  An array if successful, or FALSE if no result could be found. The array contains the following properties:
  *  <code>
  *  answer_id; // The answer ID
@@ -213,27 +209,28 @@ function long_answer_score_an_answer(Result $result, $values, $update_total = TR
  *  is_evaluated; // 0 if the question has not been evaluated, 1 if it has
  *  score; // The score the evaluator gave the user; this should be 0 if is_evaluated is 0.
  *  question_vid
- *  question_nid
+ *  question_qid
  *  result_id
  *  </code>
  */
-function long_answer_get_answer($question_nid, $question_vid, $result_id) {
+function long_answer_get_answer($question_qid, $question_vid, $result_id) {
   $result = db_query('
-    SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_nid, la.result_id, la.answer_feedback, la.answer_feedback_format, rel.max_score AS rel_max_score
+    SELECT answer_id, answer, la.is_evaluated, la.score, question_vid, question_qid, la.result_id, la.answer_feedback, la.answer_feedback_format, rel.max_score AS rel_max_score
     FROM {quiz_long_answer_user_answers} la
     JOIN {quiz_results} qnr ON (la.result_id = qnr.result_id)
     JOIN {quiz_relationship} rel ON (qnr.quiz_vid = rel.quiz_vid AND rel.question_vid = la.question_vid)
-    WHERE question_nid = :qnid AND question_vid = :qvid AND la.result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
+    WHERE question_qid = :question_id AND question_vid = :question_vid AND la.result_id = :rid', array(
+      ':question_id'  => $question_qid,
+      ':question_vid' => $question_vid,
+      ':rid'          => $result_id))->fetchAssoc();
   return $result ? $result : FALSE;
 }
 
 /**
  * Given a quiz, return a list of all the unscored answers.
  *
- * @param $nid
- *  Node ID for the quiz to check.
- * @param $vid
- *  Version ID for the quiz to check.
+ * @param int $question_qid
+ * @param int $question_vid
  * @param $count
  *  Number of items to return (default: 50).
  * @param $offset
@@ -242,9 +239,13 @@ function long_answer_get_answer($question_nid, $question_vid, $result_id) {
  * @return
  *  Indexed array of result IDs that need to be scored.
  */
-function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $offset = 0) {
+function long_answer_get_unscored_answers_by_question($question_qid, $question_vid, $count = 50, $offset = 0) {
   $results = db_query('SELECT result_id FROM {quiz_long_answer_user_answers}
-    WHERE is_evaluated = :is_evaluated AND question_nid = :question_nid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid));
+    WHERE is_evaluated = :is_evaluated AND question_qid = :question_qid AND question_vid = :question_vid', array(
+      ':is_evaluated' => 0,
+      ':question_qid' => $question_qid,
+      ':question_vid' => $question_vid
+  ));
 
   $unscored = array();
   foreach ($results as $result) {
@@ -262,26 +263,11 @@ function long_answer_get_unscored_answers_by_question($nid, $vid, $count = 50, $
  *  Where in the results we should start (default: 0).
  *
  * @return
- *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
+ *  Array of objects describing unanswered questions. Each object will have result_id, question_qid, and question_vid.
  */
 function long_answer_get_all_unscored_answers($count = 50, $offset = 0) {
   $unscored = LongAnswerResponse::fetchAllUnscoredAnswers();
   return $unscored;
-}
-
-/**
- * Generate a list of long answer questions
- *
- * @return
- *  array containing nid as key and title as value
- */
-function long_answer_questions_list() {
-  $questions = array();
-  $query = db_query('SELECT nid, title FROM {node} WHERE type = :type', array(':type' => 'long_answer'));
-  foreach ($query as $question) {
-    $questions[$question->qid] = check_plain($question->title);
-  }
-  return $questions;
 }
 
 /**

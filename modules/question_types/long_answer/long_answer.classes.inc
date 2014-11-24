@@ -26,18 +26,18 @@ class LongAnswerQuestion extends QuestionPlugin {
     }
 
     if ($is_new || $this->question->revision == 1) {
-      db_insert('quiz_long_answer_node_properties')
+      db_insert('quiz_long_answer_properties')
         ->fields(array(
-            'nid'    => $this->question->qid,
+            'qid'    => $this->question->qid,
             'vid'    => $this->question->vid,
             'rubric' => $this->question->rubric,
         ))
         ->execute();
     }
     else {
-      db_update('quiz_long_answer_node_properties')
+      db_update('quiz_long_answer_properties')
         ->fields(array('rubric' => isset($this->question->rubric) ? $this->question->rubric : ''))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -60,20 +60,20 @@ class LongAnswerQuestion extends QuestionPlugin {
   public function delete($only_this_version = FALSE) {
     if ($only_this_version) {
       db_delete('quiz_long_answer_user_answers')
-        ->condition('question_nid', $this->question->qid)
+        ->condition('question_qid', $this->question->qid)
         ->condition('question_vid', $this->question->vid)
         ->execute();
-      db_delete('quiz_long_answer_node_properties')
-        ->condition('nid', $this->question->qid)
+      db_delete('quiz_long_answer_properties')
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
     else {
-      db_delete('quiz_long_answer_node_properties')
-        ->condition('nid', $this->question->qid)
+      db_delete('quiz_long_answer_properties')
+        ->condition('qid', $this->question->qid)
         ->execute();
       db_delete('quiz_long_answer_user_answers')
-        ->condition('question_nid', $this->question->qid)
+        ->condition('question_qid', $this->question->qid)
         ->execute();
     }
     parent::delete($only_this_version);
@@ -92,9 +92,9 @@ class LongAnswerQuestion extends QuestionPlugin {
 
     $res_a = db_query(
       'SELECT rubric
-       FROM {quiz_long_answer_node_properties}
-       WHERE nid = :nid AND vid = :vid', array(
-        ':nid' => $this->question->qid,
+       FROM {quiz_long_answer_properties}
+       WHERE qid = :qid AND vid = :vid', array(
+        ':qid' => $this->question->qid,
         ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
@@ -208,13 +208,13 @@ class LongAnswerResponse extends QuizQuestionResponse {
    *  Where in the results we should start (default: 0).
    *
    * @return
-   *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
+   *  Array of objects describing unanswered questions. Each object will have result_id, question_qid, and question_vid.
    */
   public static function fetchAllUnscoredAnswers($count = 50, $offset = 0) {
     global $user;
 
     $query = db_select('quiz_long_answer_user_answers', 'answer');
-    $query->fields('answer', array('result_id', 'question_nid', 'question_vid', 'answer_feedback', 'answer_feedback_format'));
+    $query->fields('answer', array('result_id', 'question_qid', 'question_vid', 'answer_feedback', 'answer_feedback_format'));
     $query->fields('question_revision', array('title'));
     $query->fields('qr', array('time_end', 'time_start', 'uid'));
     $query->join('node_revision', 'question_revision', 'answer.question_vid = question_revision.vid');
@@ -242,8 +242,8 @@ class LongAnswerResponse extends QuizQuestionResponse {
   /**
    * Given a quiz, return a list of all of the unscored answers.
    *
-   * @param $nid
-   *  Node ID for the quiz to check.
+   * @param $qid
+   *  Question ID for the quiz to check.
    * @param $vid
    *  Version ID for the quiz to check.
    * @param $count
@@ -254,11 +254,15 @@ class LongAnswerResponse extends QuizQuestionResponse {
    * @return
    *  Indexed array of result IDs that need to be scored.
    */
-  public static function fetchUnscoredAnswersByQuestion($nid, $vid, $count = 50, $offset = 0) {
+  public static function fetchUnscoredAnswersByQuestion($qid, $vid, $count = 50, $offset = 0) {
     $results = db_query('SELECT result_id FROM {quiz_long_answer_user_answers}
       WHERE is_evaluated = :is_evaluated
-      AND question_nid = :question_nid
-      AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid));
+      AND question_qid = :question_qid
+      AND question_vid = :question_vid', array(
+        ':is_evaluated' => 0,
+        ':question_qid' => $qid,
+        ':question_vid' => $vid
+    ));
     $unscored = array();
     foreach ($results as $row) {
       $unscored[] = $row->result_id;
@@ -281,12 +285,12 @@ class LongAnswerResponse extends QuizQuestionResponse {
       // Question has been answered allready. We fetch the answer data from
       // the database.
       $row = db_query(
-        'SELECT answer_id, answer, is_evaluated, score, question_vid, question_nid, result_id, answer_feedback, answer_feedback_format
+        'SELECT answer_id, answer, is_evaluated, score, question_vid, question_qid, result_id, answer_feedback, answer_feedback_format
         FROM {quiz_long_answer_user_answers}
-        WHERE question_nid = :qnid AND question_vid = :qvid AND result_id = :rid', array(
-          ':qnid' => $question->qid,
-          ':qvid' => $question->vid,
-          ':rid'  => $result_id))->fetch();
+        WHERE question_qid = :question_id AND question_vid = :question_vid AND result_id = :rid', array(
+          ':question_id'  => $question->qid,
+          ':question_vid' => $question->vid,
+          ':rid'          => $result_id))->fetch();
       if (!empty($row)) {
         $this->answer = $row->answer;
         $this->score = $row->score;
@@ -311,7 +315,7 @@ class LongAnswerResponse extends QuizQuestionResponse {
     $this->answer_id = db_insert('quiz_long_answer_user_answers')
       ->fields(array(
           'answer'       => $this->answer,
-          'question_nid' => $this->question->qid,
+          'question_qid' => $this->question->qid,
           'question_vid' => $this->question->vid,
           'result_id'    => $this->result_id,
       ))
@@ -325,7 +329,7 @@ class LongAnswerResponse extends QuizQuestionResponse {
    */
   public function delete() {
     db_delete('quiz_long_answer_user_answers')
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->condition('result_id', $this->result_id)
       ->execute();

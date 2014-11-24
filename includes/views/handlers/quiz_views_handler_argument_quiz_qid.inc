@@ -2,7 +2,7 @@
 
 /*
  * @file
- * Handles argument quiz nid.
+ * Handles argument quiz qid.
  */
 
 class quiz_views_handler_argument_quiz_qid extends views_handler_argument_numeric {
@@ -19,7 +19,7 @@ class quiz_views_handler_argument_quiz_qid extends views_handler_argument_numeri
 
   function construct() {
     parent::construct();
-    $this->nid_field = $this->definition['nid field'];
+    $this->qid_field = $this->definition['qid field'];
     $this->vid_field = isset($this->definition['vid field']) ? $this->definition['vid field'] : 'vid';
   }
 
@@ -64,7 +64,7 @@ class quiz_views_handler_argument_quiz_qid extends views_handler_argument_numeri
 
   /**
    * Override the default behavior of query() to introduce the medial step of
-   * retrieving vids from the provided nids.
+   * retrieving vids from the provided qids.
    */
   function query($group_by = FALSE) {
     $this->ensure_my_table();
@@ -72,11 +72,11 @@ class quiz_views_handler_argument_quiz_qid extends views_handler_argument_numeri
 
     // Do subselect to get relevant vids, then add where clause
     $this->subselect_vids();
-    $this->query->add_where(0, "$this->table_alias.$this->nid_field", $this->corresponding_vids);
+    $this->query->add_where(0, "$this->table_alias.$this->qid_field", $this->corresponding_vids);
   }
 
   /**
-   * Set up the argument with the vids extracted from nids.
+   * Set up the argument with the vids extracted from qids.
    *
    * Needs to be done here, because this is the earliest stage at which we can
    * guarantee the contents of $this->argument to be available.
@@ -148,7 +148,7 @@ class quiz_views_handler_argument_quiz_qid extends views_handler_argument_numeri
     }
     $result = $query->execute();
 
-    $this->nid_field = $this->vid_field;
+    $this->qid_field = $this->vid_field;
 
     $this->corresponding_vids = array();
     foreach ($result as $item) {

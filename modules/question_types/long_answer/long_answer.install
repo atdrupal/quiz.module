@@ -13,80 +13,35 @@ function long_answer_install() {
 }
 
 /**
- * Implements hook_uninstall().
- */
-function long_answer_uninstall() {
-  // Delete data from other tables
-  drupal_set_message(t('The Long Answer module has been uninstalled and related data has been deleted.'));
-
-  // Clear the cache.
-  cache_clear_all('variables', 'cache');
-}
-
-/**
  * Implements hook_schema().
  */
 function long_answer_schema() {
   // Properties for a question nodes go in here:
-  $schema['quiz_long_answer_node_properties'] = array(
+  $schema['quiz_long_answer_properties'] = array(
       'fields'      => array(
-          'nid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'qid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'vid'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'rubric' => array('type' => 'text'),
       ),
-      'primary key' => array('nid', 'vid'),
+      'primary key' => array('qid', 'vid'),
   );
 
   // User answers go in here.
   $schema['quiz_long_answer_user_answers'] = array(
       'fields'      => array(
-          'answer_id'              => array(
-              'type'     => 'serial',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'question_nid'           => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'question_vid'           => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'result_id'              => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'score'                  => array(
-              'type'     => 'float',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'is_evaluated'           => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'size'     => 'tiny',
-              'default'  => 0,
-              'not null' => TRUE,
-          ),
-          'answer'                 => array(
-              'type' => 'text'
-          ),
-          'answer_feedback'        => array(
-              'type' => 'text'
-          ),
-          'answer_feedback_format' => array(
-              'type'   => 'varchar',
-              'length' => 255,
-          ),
+          'answer_id'              => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_qid'           => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_vid'           => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'result_id'              => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,),
+          'score'                  => array('type' => 'float', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'is_evaluated'           => array('type' => 'int', 'unsigned' => TRUE, 'size' => 'tiny', 'default' => 0, 'not null' => TRUE),
+          'answer'                 => array('type' => 'text'),
+          'answer_feedback'        => array('type' => 'text'),
+          'answer_feedback_format' => array('type' => 'varchar', 'length' => 255),
       ),
       'primary key' => array('answer_id'),
       'unique keys' => array(
-          'ids' => array('result_id', 'question_nid', 'question_vid'),
+          'ids' => array('result_id', 'question_qid', 'question_vid'),
       ),
   );
 
@@ -115,4 +70,17 @@ function long_answer_update_7402() {
     );
     db_add_field('quiz_long_answer_user_answers', 'answer_feedback_format', $spec);
   }
+}
+
+/**
+ * Change schema per change of question content.
+ */
+function long_answer_update_7600() {
+  db_rename_table('quiz_long_answer_node_properties', 'quiz_long_answer_properties');
+
+  $spec_1 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_long_answer_properties', 'nid', 'qid', $spec_1);
+
+  $spec_2 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_long_answer_user_answers', 'question_nid', 'question_qid', $spec_2);
 }

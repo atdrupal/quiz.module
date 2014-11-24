@@ -24,7 +24,7 @@ class Writer {
     // Insert result data, or update existing data.
     $answer = (object) array(
           'result_answer_id' => $this->findAnswerId($response),
-          'question_nid'     => $response->question_nid,
+          'question_qid'     => $response->question_qid,
           'question_vid'     => $response->question_vid,
           'result_id'        => $response->result_id,
           'is_correct'       => (int) $response->is_correct,
@@ -64,7 +64,7 @@ class Writer {
    * @return type
    */
   private function findScale(QuizEntity $quiz, stdClass $response, $options) {
-    $ssql = '(SELECT max_score FROM {quiz_question_revision} WHERE qid = :question_nid AND vid = :question_vid)';
+    $ssql = '(SELECT max_score FROM {quiz_question_revision} WHERE qid = :question_qid AND vid = :question_vid)';
 
     if ($quiz->randomization < 2) {
       return db_query("
@@ -72,11 +72,11 @@ class Writer {
           FROM {quiz_relationship}
           WHERE quiz_qid = :quiz_qid
             AND quiz_vid = :quiz_vid
-            AND question_nid = :question_nid
+            AND question_qid = :question_qid
             AND question_vid = :question_vid", array(
             ':quiz_qid'     => $quiz->qid,
             ':quiz_vid'     => $quiz->vid,
-            ':question_nid' => $response->question_nid,
+            ':question_qid' => $response->question_qid,
             ':question_vid' => $response->question_vid
         ))->fetchField();
     }
@@ -86,7 +86,7 @@ class Writer {
           SELECT (max_score_for_random/{$ssql}) as scale
           FROM {quiz_entity_revision}
           WHERE vid = :quiz_vid", array(
-            ':question_nid' => $response->question_nid,
+            ':question_qid' => $response->question_qid,
             ':question_vid' => $response->question_vid,
             ':quiz_vid'     => $quiz->vid
         ))->fetchField();
@@ -100,7 +100,7 @@ class Writer {
       return db_query("
           SELECT (max_score/{$ssql}) as scale
           FROM {quiz_terms} WHERE vid = :vid AND tid = :tid", array(
-            ':question_nid' => $response->question_nid,
+            ':question_qid' => $response->question_qid,
             ':question_vid' => $response->question_vid,
             ':vid'          => $quiz->vid,
             ':tid'          => $response->tid
@@ -111,10 +111,10 @@ class Writer {
   private function findAnswerId($response) {
     return db_query("SELECT result_answer_id
         FROM {quiz_results_answers}
-        WHERE question_nid = :question_nid
+        WHERE question_qid = :question_qid
           AND question_vid = :question_vid
           AND result_id = :result_id", array(
-          ':question_nid' => $response->question_nid,
+          ':question_qid' => $response->question_qid,
           ':question_vid' => $response->question_vid,
           ':result_id'    => $response->result_id
       ))->fetchField();

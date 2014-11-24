@@ -52,7 +52,7 @@ function quiz_views_handlers() {
               'parent' => 'views_handler_filter',
           ),
           // Relationships
-          'quiz_views_handler_relationship_vid_from_nid'  => array(
+          'quiz_views_handler_relationship_vid_from_qid'  => array(
               'parent' => 'views_handler_relationship',
           ),
           // Arguments
@@ -97,8 +97,8 @@ function quiz_views_data_alter(&$data) {
   $data['quiz_results_answers']['table']['join'] = array(
       'quiz_entity_revision' => array(
           'left_table' => 'quiz_relationship',
-          'left_field' => 'question_nid',
-          'field'      => 'question_nid',
+          'left_field' => 'question_qid',
+          'field'      => 'question_qid',
           'extra'      => 'quiz_results_answers.result_id = quiz_results.result_id',
       ),
   );

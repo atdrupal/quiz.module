@@ -36,9 +36,9 @@ class ShortAnswerQuestion extends QuestionPlugin {
    */
   public function saveEntityProperties($is_new = FALSE) {
     if ($is_new || $this->question->revision == 1) {
-      $id = db_insert('quiz_short_answer_node_properties')
+      $id = db_insert('quiz_short_answer_properties')
         ->fields(array(
-            'nid'                       => $this->question->qid,
+            'qid'                       => $this->question->qid,
             'vid'                       => $this->question->vid,
             'correct_answer'            => $this->question->correct_answer,
             'correct_answer_evaluation' => $this->question->correct_answer_evaluation,
@@ -46,12 +46,12 @@ class ShortAnswerQuestion extends QuestionPlugin {
         ->execute();
     }
     else {
-      db_update('quiz_short_answer_node_properties')
+      db_update('quiz_short_answer_properties')
         ->fields(array(
             'correct_answer'            => $this->question->correct_answer,
             'correct_answer_evaluation' => $this->question->correct_answer_evaluation,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -76,10 +76,10 @@ class ShortAnswerQuestion extends QuestionPlugin {
   public function delete($only_this_version = FALSE) {
     parent::delete($only_this_version);
     $delete_ans = db_delete('quiz_short_answer_user_answers');
-    $delete_ans->condition('question_nid', $this->question->qid);
+    $delete_ans->condition('question_qid', $this->question->qid);
 
-    $delete_node = db_delete('quiz_short_answer_node_properties');
-    $delete_node->condition('nid', $this->question->qid);
+    $delete_node = db_delete('quiz_short_answer_properties');
+    $delete_node->condition('qid', $this->question->qid);
 
     if ($only_this_version) {
       $delete_ans->condition('question_vid', $this->question->vid);
@@ -100,8 +100,8 @@ class ShortAnswerQuestion extends QuestionPlugin {
       return $this->entityProperties;
     }
     $props = parent::load();
-    $res_a = db_query('SELECT correct_answer, correct_answer_evaluation FROM {quiz_short_answer_node_properties}
-      WHERE nid = :nid AND vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
+    $res_a = db_query('SELECT correct_answer, correct_answer_evaluation FROM {quiz_short_answer_properties}
+      WHERE qid = :qid AND vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
     $this->entityProperties = (is_array($res_a)) ? array_merge($props, $res_a) : $props;
     return $this->entityProperties;
   }
@@ -282,13 +282,13 @@ class ShortAnswerResponse extends QuizQuestionResponse {
    *  Where in the results we should start (default: 0).
    *
    * @return
-   *  Array of objects describing unanswered questions. Each object will have result_id, question_nid, and question_vid.
+   *  Array of objects describing unanswered questions. Each object will have result_id, question_qid, and question_vid.
    */
   public static function fetchAllUnscoredAnswers($count = 50, $offset = 0) {
     global $user;
 
     $query = db_select('quiz_short_answer_user_answers', 'answer');
-    $query->fields('answer', array('result_id', 'question_nid', 'question_vid', 'answer_feedback', 'answer_feedback_format'));
+    $query->fields('answer', array('result_id', 'question_qid', 'question_vid', 'answer_feedback', 'answer_feedback_format'));
     $query->fields('question_revision', array('title'));
     $query->fields('qr', array('time_end', 'time_start', 'uid'));
     $query->join('node_revision', 'question_revision', 'answer.question_vid = question_revision.vid');
@@ -316,7 +316,7 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   /**
    * Given a question, return a list of all of the unscored answers.
    *
-   * @param $nid
+   * @param $qid
    *  Node ID for the question to check.
    * @param $vid
    *  Version ID for the question to check.
@@ -328,9 +328,9 @@ class ShortAnswerResponse extends QuizQuestionResponse {
    * @return
    *  Indexed array of result IDs that need to be scored.
    */
-  public static function fetchUnscoredAnswersByQuestion($nid, $vid, $count = 50, $offset = 0) {
+  public static function fetchUnscoredAnswersByQuestion($qid, $vid, $count = 50, $offset = 0) {
     return db_query('SELECT result_id FROM {quiz_short_answer_user_answers}
-      WHERE is_evaluated = :is_evaluated AND question_nid = :question_nid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_nid' => $nid, ':question_vid' => $vid)
+      WHERE is_evaluated = :is_evaluated AND question_qid = :question_qid AND question_vid = :question_vid', array(':is_evaluated' => 0, ':question_qid' => $qid, ':question_vid' => $vid)
       )->fetchCol();
   }
 
@@ -345,9 +345,9 @@ class ShortAnswerResponse extends QuizQuestionResponse {
   public function __construct($result_id, \Drupal\quiz_question\Entity\Question $question, $answer = NULL) {
     parent::__construct($result_id, $question, $answer);
     if (!isset($answer)) {
-      $r = db_query('SELECT answer_id, answer, is_evaluated, score, question_vid, question_nid, result_id, answer_feedback, answer_feedback_format
+      $r = db_query('SELECT answer_id, answer, is_evaluated, score, question_vid, question_qid, result_id, answer_feedback, answer_feedback_format
         FROM {quiz_short_answer_user_answers}
-        WHERE question_nid = :qnid AND question_vid = :qvid AND result_id = :rid', array(':qnid' => $question->qid, ':qvid' => $question->vid, ':rid' => $result_id)
+        WHERE question_qid = :qqid AND question_vid = :qvid AND result_id = :rid', array(':qqid' => $question->qid, ':qvid' => $question->vid, ':rid' => $result_id)
         )->fetch();
 
       if (!empty($r)) {
@@ -381,7 +381,7 @@ class ShortAnswerResponse extends QuizQuestionResponse {
     $this->answer_id = db_insert('quiz_short_answer_user_answers')
       ->fields(array(
           'answer'       => $this->answer,
-          'question_nid' => $this->question->qid,
+          'question_qid' => $this->question->qid,
           'question_vid' => $this->question->vid,
           'result_id'    => $this->result_id,
           'score'        => $this->getScore(FALSE),
@@ -397,7 +397,7 @@ class ShortAnswerResponse extends QuizQuestionResponse {
    */
   public function delete() {
     db_delete('quiz_short_answer_user_answers')
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->condition('result_id', $this->result_id)
       ->execute();

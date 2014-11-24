@@ -377,6 +377,7 @@ function quiz_entity_access_callback($op, $type = NULL, $account = NULL) {
 }
 
 /**
+ * @TODO: Fix me
  * Validate that a node is of type quiz, and that the user has access to it.
  *
  * @param stdClass $node
@@ -389,8 +390,10 @@ function quiz_type_confirm($node, $op = NULL) {
   }
 
   if (isset($op)) {
-    $node_ops = array('view', 'update', 'delete', 'create');
-    return in_array($op, $node_ops) ? node_access($op, $node) : user_access($op);
+    if (in_array($op, array('view', 'update', 'delete', 'create'))) {
+      return node_access($op, $node);
+    }
+    return user_access($op);
   }
 
   return user_access('access quiz');

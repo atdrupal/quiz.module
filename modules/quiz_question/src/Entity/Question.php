@@ -15,9 +15,6 @@ class Question extends Entity {
   /** @var int */
   public $vid;
 
-  /** @var int Legacy question ID. */
-  public $nid;
-
   /** @var string */
   public $type;
 

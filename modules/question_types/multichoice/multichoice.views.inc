@@ -13,8 +13,8 @@ function multichoice_views_data() {
           'join'  => array(
               'quiz_entity_revision' => array(
                   'left_table' => 'quiz_relationship',
-                  'left_field' => 'question_nid',
-                  'field'      => 'question_nid',
+                  'left_field' => 'question_qid',
+                  'field'      => 'question_qid',
               ),
           ),
       ),
@@ -37,14 +37,13 @@ function multichoice_views_data() {
           ),
           'sort'     => array('handler' => 'views_handler_sort'),
       ),
-      'question_nid' => array(
+      'question_qid' => array(
           'title'        => t('Answers question ID'),
           'help'         => t('The ID of the question.'),
           'argument'     => array(
               'handler'       => 'views_handler_argument_numeric',
-              //'name_field' => 'title',
               'numeric'       => TRUE,
-              'validate type' => 'nid',
+              'validate type' => 'qid',
           ),
           'filter'       => array(
               'handler' => 'quiz_views_handler_filter_numeric',
@@ -54,7 +53,7 @@ function multichoice_views_data() {
           'relationship' => array(
               'handler' => 'views_handler_relationship',
               'base'    => 'node',
-              'field'   => 'nid',
+              'field'   => 'qid',
               'label'   => t('node'),
           ),
       ),
@@ -99,8 +98,8 @@ function multichoice_views_data() {
           'join'  => array(
               'quiz_entity_revision' => array(
                   'left_table' => 'quiz_relationship',
-                  'left_field' => 'question_nid',
-                  'field'      => 'question_nid',
+                  'left_field' => 'question_qid',
+                  'field'      => 'question_qid',
               ),
           ),
       ),
@@ -125,7 +124,7 @@ function multichoice_views_data() {
       ),
       'result_id'    => array(
           'title'        => t('Result ID'),
-          'help'         => t('The ID identifying a particular set of quiz results. This ID is unique with respect to the quiz nid and vid of the quiz, uid of the quizee, and the take of the quiz.'),
+          'help'         => t('The ID identifying a particular set of quiz results. This ID is unique with respect to the quiz qid and vid of the quiz, uid of the quizee, and the take of the quiz.'),
           'field'        => array(
               'handler'        => 'views_handler_field_numeric',
               'click sortable' => TRUE,
@@ -149,14 +148,14 @@ function multichoice_views_data() {
               'label'      => t('Result'),
           ),
       ),
-      'question_nid' => array(
+      'question_qid' => array(
           'title'        => t('Result question ID'),
           'help'         => t('The ID of the question.'),
           'argument'     => array(
               'handler'       => 'views_handler_argument_numeric',
               //'name_field' => 'title',
               'numeric'       => TRUE,
-              'validate type' => 'nid',
+              'validate type' => 'qid',
           ),
           'filter'       => array(
               'handler' => 'quiz_views_handler_filter_numeric',
@@ -166,7 +165,7 @@ function multichoice_views_data() {
           'relationship' => array(
               'handler' => 'views_handler_relationship',
               'base'    => 'node',
-              'field'   => 'nid',
+              'field'   => 'qid',
               'label'   => t('node'),
           ),
       ),

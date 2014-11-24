@@ -46,10 +46,10 @@ abstract class QuizQuestionResponse {
     $result = db_query('SELECT is_skipped, is_doubtful '
       . ' FROM {quiz_results_answers} '
       . ' WHERE result_id = :result_id '
-      . '   AND question_nid = :question_nid '
+      . '   AND question_qid = :question_qid '
       . '   AND question_vid = :question_vid', array(
         ':result_id'    => $result_id,
-        ':question_nid' => $question->qid,
+        ':question_qid' => $question->qid,
         ':question_vid' => $question->vid
       ))->fetch();
     if (is_object($result)) {
@@ -139,14 +139,14 @@ abstract class QuizQuestionResponse {
    * Convert data to an object that has the following properties:
    * - $score
    * - $result_id
-   * - $nid
+   * - $qid
    * - $vid
    * - $is_correct
    */
   function toBareObject() {
     $response = new stdClass();
     $response->score = $this->getScore(); // This can be 0 for unscored.
-    $response->question_nid = $this->question->qid;
+    $response->question_qid = $this->question->qid;
     $response->question_vid = $this->question->vid;
     $response->result_id = $this->result_id;
     $response->is_correct = (int) $this->isCorrect();
@@ -177,7 +177,7 @@ abstract class QuizQuestionResponse {
    *  is_evaluated; // 0 if the question has not been evaluated, 1 if it has
    *  score; // The score the evaluator gave the user; this should be 0 if is_evaluated is 0.
    *  question_vid
-   *  question_nid
+   *  question_qid
    *  result_id
    */
   public function getReport() {
@@ -190,7 +190,7 @@ abstract class QuizQuestionResponse {
         'is_correct'   => $this->isCorrect(),
         'score'        => $this->getScore(),
         'question_vid' => $this->question->vid,
-        'question_nid' => $this->question->qid,
+        'question_qid' => $this->question->qid,
         'result_id'    => $this->result_id,
     );
     return $report;

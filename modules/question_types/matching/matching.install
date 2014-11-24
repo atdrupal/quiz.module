@@ -13,109 +13,42 @@ function matching_install() {
 }
 
 /**
- * Implements hook_uninstall().
- */
-function matching_uninstall() {
-  // Delete data from other tables
-  drupal_set_message(t('The Matching module has been uninstalled and related data has been deleted.'));
-
-  // Clear the cache.
-  cache_clear_all('variables', 'cache');
-}
-
-/**
  * Implements hook_schema().
  */
 function matching_schema() {
   // Properties for a question nodes go in here:
   $schema['quiz_matching_properties'] = array(
       'fields'      => array(
-          'nid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'vid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'choice_penalty' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
+          'qid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'vid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'choice_penalty' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       ),
-      'primary key' => array('nid', 'vid'),
+      'primary key' => array('qid', 'vid'),
   );
 
-  $schema['quiz_matching_node'] = array(
+  $schema['quiz_matching_question'] = array(
       'fields'      => array(
-          'match_id' => array(
-              'type'     => 'serial',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'nid'      => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'vid'      => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'question' => array(
-              'type'     => 'text',
-              'not null' => TRUE,
-          ),
-          'answer'   => array(
-              'type'     => 'text',
-              'not null' => TRUE,
-          ),
-          'feedback' => array(
-              'type'     => 'text',
-              'not null' => TRUE,
-          ),
+          'match_id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+          'qid'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'vid'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question' => array('type' => 'text', 'not null' => TRUE),
+          'answer'   => array('type' => 'text', 'not null' => TRUE),
+          'feedback' => array('type' => 'text', 'not null' => TRUE),
       ),
       'primary key' => array('match_id'),
       'indexes'     => array(
-          'question_id' => array('nid', 'vid'),
+          'question_id' => array('qid', 'vid'),
       ),
   );
 
   // User answers go in here.
   $schema['quiz_matching_user_answers'] = array(
       'fields'      => array(
-          'answer_id' => array(
-              'type'     => 'serial',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'match_id'  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'result_id' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'score'     => array(
-              'type'     => 'int',
-              'size'     => 'tiny',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
-          'answer'    => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
+          'answer_id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+          'match_id'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'result_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'score'     => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+          'answer'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       ),
       'primary key' => array('answer_id'),
   );
@@ -133,26 +66,11 @@ function matching_schema() {
 function matching_update_7400() {
   $schema = array(
       'fields'      => array(
-          'nid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'vid'            => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'choice_penalty' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default'  => 0,
-          ),
+          'nid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'vid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'choice_penalty' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       ),
-      'primary key' => array(
-          'nid', 'vid'
-      ),
+      'primary key' => array('nid', 'vid'),
   );
 
   db_create_table('quiz_matching_properties', $schema);
@@ -169,4 +87,16 @@ function matching_update_7400() {
       ))
       ->execute();
   }
+}
+
+/**
+ * Update schema per question structure changed.
+ */
+function matching_update_7600() {
+  $spec_1 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_matching_properties', 'nid', 'qid', $spec_1);
+
+  db_rename_table('quiz_matching_node', 'quiz_matching_question');
+  $spec_2 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_matching_question', 'nid', 'qid', $spec_2);
 }

@@ -25,7 +25,7 @@ class ScoreIO {
     $count = 0;
 
     foreach ($result->layout as $layout_item) {
-      if (!$question = quiz_question_entity_load($layout_item['nid'], $layout_item['vid'])) {
+      if (!$question = quiz_question_entity_load($layout_item['qid'], $layout_item['vid'])) {
         continue;
       }
 

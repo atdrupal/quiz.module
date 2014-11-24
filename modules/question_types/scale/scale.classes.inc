@@ -54,20 +54,20 @@ class ScaleQuestion extends QuestionPlugin {
       $this->setPreset($answer_collection_id);
     }
     if ($is_new_node) {
-      $id = db_insert('quiz_scale_node_properties')
+      $id = db_insert('quiz_scale_properties')
         ->fields(array(
-            'nid'                  => $this->question->qid,
+            'qid'                  => $this->question->qid,
             'vid'                  => $this->question->vid,
             'answer_collection_id' => $answer_collection_id,
         ))
         ->execute();
     }
     else {
-      db_update('quiz_scale_node_properties')
+      db_update('quiz_scale_properties')
         ->fields(array(
             'answer_collection_id' => $answer_collection_id,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -194,7 +194,7 @@ class ScaleQuestion extends QuestionPlugin {
     }
 
     // Check if the collection is used in an existing question. If it is we can't delete it.
-    $count = db_query('SELECT COUNT(*) FROM {quiz_scale_node_properties} WHERE answer_collection_id = :acid', array(':acid' => $answer_collection_id))->fetchField();
+    $count = db_query('SELECT COUNT(*) FROM {quiz_scale_properties} WHERE answer_collection_id = :acid', array(':acid' => $answer_collection_id))->fetchField();
 
     // We delete the answer collection if it isnt beeing used by enough questions
     if ($count <= $accept) {
@@ -282,22 +282,22 @@ class ScaleQuestion extends QuestionPlugin {
     parent::delete($only_this_version);
     if ($only_this_version) {
       db_delete('quiz_scale_user_answers')
-        ->condition('question_nid', $this->question->qid)
+        ->condition('question_qid', $this->question->qid)
         ->condition('question_vid', $this->question->vid)
         ->execute();
 
-      db_delete('quiz_scale_node_properties')
-        ->condition('nid', $this->question->qid)
+      db_delete('quiz_scale_properties')
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
     else {
       db_delete('quiz_scale_user_answers')
-        ->condition('question_nid', $this->question->qid)
+        ->condition('question_qid', $this->question->qid)
         ->execute();
 
-      db_delete('quiz_scale_node_properties')
-        ->condition('nid', $this->question->qid)
+      db_delete('quiz_scale_properties')
+        ->condition('qid', $this->question->qid)
         ->execute();
     }
     $this->deleteCollectionIfNotUsed($this->question->{0}->answer_collection_id, 0);
@@ -315,10 +315,10 @@ class ScaleQuestion extends QuestionPlugin {
     $props = parent::load();
 
     $res = db_query('SELECT id, answer, a.answer_collection_id
-            FROM {quiz_scale_node_properties} p
+            FROM {quiz_scale_properties} p
             JOIN {quiz_scale_answer} a ON (p.answer_collection_id = a.answer_collection_id)
-            WHERE nid = :nid AND vid = :vid
-            ORDER BY a.id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+            WHERE qid = :qid AND vid = :vid
+            ORDER BY a.id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
     foreach ($res as $res_o) {
       $props[] = $res_o;
     }
@@ -571,7 +571,7 @@ class ScaleResponse extends QuizQuestionResponse {
       $this->answer_id = intval($answer);
     }
     else {
-      $this->answer_id = db_query('SELECT answer_id FROM {quiz_scale_user_answers} WHERE result_id = :rid AND question_nid = :qnid AND question_vid = :qvid', array(':rid' => $result_id, ':qnid' => $this->question->qid, ':qvid' => $this->question->vid))->fetchField();
+      $this->answer_id = db_query('SELECT answer_id FROM {quiz_scale_user_answers} WHERE result_id = :rid AND question_qid = :qqid AND question_vid = :qvid', array(':rid' => $result_id, ':qqid' => $this->question->qid, ':qvid' => $this->question->vid))->fetchField();
     }
     $answer = db_query('SELECT answer FROM {quiz_scale_answer} WHERE id = :id', array(':id' => $this->answer_id))->fetchField();
     $this->answer = check_plain($answer);
@@ -588,7 +588,7 @@ class ScaleResponse extends QuizQuestionResponse {
           'answer_id'    => $this->answer_id,
           'result_id'    => $this->result_id,
           'question_vid' => $this->question->vid,
-          'question_nid' => $this->question->qid,
+          'question_qid' => $this->question->qid,
       ))
       ->execute();
   }
@@ -601,7 +601,7 @@ class ScaleResponse extends QuizQuestionResponse {
   public function delete() {
     db_delete('quiz_scale_user_answers')
       ->condition('result_id', $this->result_id)
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->execute();
   }

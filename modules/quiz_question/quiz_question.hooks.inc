@@ -216,9 +216,9 @@ function quiz_question_field_extra_fields() {
  * @return
  *  Node containing all of the items from the question plus the user's answer.
  */
-function quiz_question_get_report($nid, $vid, $result_id) {
-  if (!$response_instance = quiz_answer_controller()->getInstance($result_id, NULL, NULL, $nid, $vid)) {
-    drupal_set_message(t('Unable to load question with nid %nid and vid %vid', array('%nid' => $nid, '%vid' => $vid)), 'error');
+function quiz_question_get_report($qid, $vid, $result_id) {
+  if (!$response_instance = quiz_answer_controller()->getInstance($result_id, NULL, NULL, $qid, $vid)) {
+    drupal_set_message(t('Unable to load question with qid %qid and vid %vid', array('%qid' => $qid, '%vid' => $vid)), 'error');
     return FALSE;
   }
 
@@ -242,7 +242,7 @@ function quiz_question_quiz_question_score($quiz, Question $question, $result_id
 
   $score = new stdClass();
   $score->possible = $plugin->getMaximumScore();
-  $score->question_nid = $question->qid;
+  $score->question_qid = $question->qid;
   $score->question_vid = $question->vid;
 
   if (isset($result_id)) {
@@ -329,19 +329,19 @@ function _quiz_delete_question(&$question, $only_this_version) {
   //$base_sql = "UPDATE {quiz_relationship} SET question_status = " . QUESTION_NEVER;
   $select_sql = 'SELECT quiz_vid FROM {quiz_relationship}';
   if ($only_this_version) {
-    $select_sql .= ' WHERE question_nid = :question_nid AND question_vid = :question_vid';
-    $filter_arg = array(':question_nid' => $question->qid, ':question_vid' => $question->vid);
+    $select_sql .= ' WHERE question_qid = :question_qid AND question_vid = :question_vid';
+    $filter_arg = array(':question_qid' => $question->qid, ':question_vid' => $question->vid);
   }
   else {
-    $select_sql .= ' WHERE question_nid = :question_nid';
-    $filter_arg = array(':question_nid' => $question->qid);
+    $select_sql .= ' WHERE question_qid = :question_qid';
+    $filter_arg = array(':question_qid' => $question->qid);
   }
 
   $res = db_query($select_sql, $filter_arg);
 
   $update = db_update('quiz_relationship')
     ->fields(array('question_status' => QUIZ_QUESTION_NEVER))
-    ->condition('question_nid', $question->qid);
+    ->condition('question_qid', $question->qid);
   if ($only_this_version) {
     $update = $update->condition('question_vid', $question->vid);
   }

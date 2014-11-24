@@ -42,11 +42,11 @@ class Stats {
    */
   public function countAlwaysQuestions($quiz_vid) {
     return (int) db_query('SELECT COUNT(*)
-      FROM {quiz_relationship} qnr
-        JOIN {node} n ON n.nid = qnr.question_nid
-      WHERE n.status = 1
-        AND qnr.quiz_vid = :quiz_vid
-        AND qnr.question_status = :question_status', array(
+      FROM {quiz_relationship} relationship
+        JOIN {quiz_question} question ON question.qid = relationship.question_qid
+      WHERE question.status = 1
+        AND relationship.quiz_vid = :quiz_vid
+        AND relationship.question_status = :question_status', array(
           ':quiz_vid'        => $quiz_vid,
           ':question_status' => QUIZ_QUESTION_ALWAYS
       ))->fetchField();

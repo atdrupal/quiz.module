@@ -193,10 +193,7 @@ class DDLinesQuestion extends QuestionPlugin {
   public function getMaximumScore() {
     // 1 point per correct hotspot location
     $ddlines_elements = json_decode($this->question->ddlines_elements);
-
-    $max_score = isset($ddlines_elements->elements) ? sizeof($ddlines_elements->elements) : 0;
-
-    return $max_score;
+    return isset($ddlines_elements->elements) ? sizeof($ddlines_elements->elements) : 0;
   }
 
   /**
@@ -204,9 +201,9 @@ class DDLinesQuestion extends QuestionPlugin {
    */
   public function saveEntityProperties($is_new = FALSE) {
     if ($is_new || $this->question->revision == 1) {
-      $id = db_insert('quiz_ddlines_node')
+      db_insert('quiz_ddlines_question')
         ->fields(array(
-            'nid'              => $this->question->qid,
+            'qid'              => $this->question->qid,
             'vid'              => $this->question->vid,
             'feedback_enabled' => $this->question->feedback_enabled,
             'hotspot_radius'   => $this->question->hotspot_radius,
@@ -216,14 +213,14 @@ class DDLinesQuestion extends QuestionPlugin {
         ->execute();
     }
     else {
-      db_update('quiz_ddlines_node')
+      db_update('quiz_ddlines_question')
         ->fields(array(
             'ddlines_elements' => $this->question->ddlines_elements,
             'hotspot_radius'   => $this->question->hotspot_radius,
             'feedback_enabled' => $this->question->feedback_enabled,
             'execution_mode'   => $this->question->execution_mode,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
     }
@@ -240,7 +237,10 @@ class DDLinesQuestion extends QuestionPlugin {
     }
     $props = parent::load();
 
-    $res_a = db_query('SELECT feedback_enabled, hotspot_radius, ddlines_elements, execution_mode FROM {quiz_ddlines_node} WHERE nid = :nid AND vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
+    $res_a = db_query(
+      'SELECT feedback_enabled, hotspot_radius, ddlines_elements, execution_mode FROM {quiz_ddlines_question} WHERE qid = :qid AND vid = :vid', array(
+        ':qid' => $this->question->qid,
+        ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
       $props = array_merge($props, $res_a);
@@ -268,21 +268,21 @@ class DDLinesQuestion extends QuestionPlugin {
    * @see QuizQuestion#delete()
    */
   public function delete($only_this_version = FALSE) {
-    $delete_node = db_delete('quiz_ddlines_node')->condition('nid', $this->question->qid);
-    $delete_results = db_delete('quiz_ddlines_user_answers')->condition('question_nid', $this->question->qid);
+    $delete_question = db_delete('quiz_ddlines_question')->condition('qid', $this->question->qid);
+    $delete_results = db_delete('quiz_ddlines_user_answers')->condition('question_qid', $this->question->qid);
 
     if ($only_this_version) {
-      $delete_node->condition('vid', $this->question->vid);
+      $delete_question->condition('vid', $this->question->vid);
       $delete_results->condition('question_vid', $this->question->vid);
     }
 
     // Delete from table quiz_ddlines_user_answer_multi
     $user_answer_ids = array();
     if ($only_this_version) {
-      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_nid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
     }
     else {
-      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_nid = :nid', array(':nid' => $this->question->qid));
+      $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid', array(':qid' => $this->question->qid));
     }
     while ($user_answer = $query->fetch()) {
       $user_answer_ids[] = $user_answer->id;
@@ -290,11 +290,11 @@ class DDLinesQuestion extends QuestionPlugin {
 
     if (count($user_answer_ids)) {
       db_delete('quiz_ddlines_user_answer_multi')
-        ->condition('user_answer_id', $user_answer_ids, 'IN')
+        ->condition('user_answer_id', $user_answer_ids)
         ->execute();
     }
 
-    $delete_node->execute();
+    $delete_question->execute();
     $delete_results->execute();
     parent::delete($only_this_version);
   }
@@ -331,7 +331,7 @@ class DDLinesResponse extends QuizQuestionResponse {
     else {
       $res = db_query('SELECT label_id, hotspot_id FROM {quiz_ddlines_user_answers} ua
               LEFT OUTER JOIN {quiz_ddlines_user_answer_multi} uam ON(uam.user_answer_id = ua.id)
-              WHERE ua.result_id = :result_id AND ua.question_nid = :question_nid AND ua.question_vid = :question_vid', array(':result_id' => $result_id, ':question_nid' => $this->question->qid, ':question_vid' => $this->question->vid));
+              WHERE ua.result_id = :result_id AND ua.question_qid = :question_qid AND ua.question_vid = :question_vid', array(':result_id' => $result_id, ':question_qid' => $this->question->qid, ':question_vid' => $this->question->vid));
       while ($row = $res->fetch()) {
         $this->user_answers[$row->label_id] = $row->hotspot_id;
       }
@@ -344,7 +344,7 @@ class DDLinesResponse extends QuizQuestionResponse {
   public function save() {
     $user_answer_id = db_insert('quiz_ddlines_user_answers')
       ->fields(array(
-          'question_nid' => $this->question->qid,
+          'question_qid' => $this->question->qid,
           'question_vid' => $this->question->vid,
           'result_id'    => $this->result_id,
       ))
@@ -365,7 +365,7 @@ class DDLinesResponse extends QuizQuestionResponse {
   public function delete() {
 
     $user_answer_ids = array();
-    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_nid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
+    $query = db_query('SELECT id FROM {quiz_ddlines_user_answers} WHERE question_qid = :qid AND question_vid = :vid AND result_id = :result_id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
     while ($answer = $query->fetch()) {
       $user_answer_ids[] = $answer->id;
     }
@@ -378,7 +378,7 @@ class DDLinesResponse extends QuizQuestionResponse {
 
     db_delete('quiz_ddlines_user_answers')
       ->condition('result_id', $this->result_id)
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->execute();
   }

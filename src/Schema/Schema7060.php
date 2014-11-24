@@ -137,7 +137,7 @@ class Schema7060 {
         'fields'      => array(
             'result_answer_id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The result answer ID',),
             'result_id'        => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-            'question_nid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+            'question_qid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'question_vid'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'tid'              => array('type' => 'int', 'unsigned' => TRUE),
             'is_correct'       => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0,),
@@ -149,7 +149,7 @@ class Schema7060 {
         ),
         'primary key' => array('result_answer_id'),
         'unique keys' => array(
-            'result_answer' => array('result_id', 'question_nid', 'question_vid'),
+            'result_answer' => array('result_id', 'question_qid', 'question_vid'),
         ),
         'indexes'     => array('result_id' => array('result_id')),
     );
@@ -182,7 +182,7 @@ class Schema7060 {
             'quiz_qid'              => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'quiz_vid'              => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'qr_pid'                => array('type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE, 'default' => NULL, 'description' => 'ID of parent page (question entity)'),
-            'question_nid'          => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+            'question_qid'          => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'question_vid'          => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
             'question_status'       => array('type' => 'int', 'size' => 'tiny', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1),
             'weight'                => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
@@ -191,7 +191,7 @@ class Schema7060 {
         ),
         'primary key' => array('qr_id'),
         'unique keys' => array(
-            'parent_child' => array('quiz_qid', 'quiz_vid', 'question_nid', 'question_vid'),
+            'parent_child' => array('quiz_qid', 'quiz_vid', 'question_qid', 'question_vid'),
         ),
         'indexes'     => array(
             'parent_id' => array('quiz_vid'),
@@ -202,7 +202,7 @@ class Schema7060 {
     $schema['quiz_terms'] = array(
         'description' => 'Table storing what terms belongs to what quiz for categorized random quizzes',
         'fields'      => array(
-            'nid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Node ID'),
+            'qid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Question ID'),
             'vid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Version ID'),
             'weight'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The terms weight decides the order of the terms'),
             'tid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Term ID'),

@@ -3,12 +3,13 @@
 namespace Drupal\quiz\Controller;
 
 use Drupal\quiz\Controller\Legacy\QuizTakeLegacyController;
+use Drupal\quiz\Entity\Result;
 use RuntimeException;
 use stdClass;
 
 class QuizTakeController extends QuizTakeLegacyController {
 
-  /** @var \Drupal\quiz\Entity\Result */
+  /** @var Result */
   private $result;
 
   /** @var stdClass */

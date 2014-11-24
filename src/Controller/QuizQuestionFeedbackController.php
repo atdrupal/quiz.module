@@ -24,7 +24,7 @@ class QuizQuestionFeedbackController {
   }
 
   public function render($page_number) {
-    $question = quiz_question_entity_load($this->result->layout[$page_number]['nid']);
+    $question = quiz_question_entity_load($this->result->layout[$page_number]['qid']);
     return $this->buildRenderArray($question);
   }
 

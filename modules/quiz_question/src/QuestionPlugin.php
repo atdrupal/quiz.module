@@ -3,7 +3,7 @@
 namespace Drupal\quiz_question;
 
 use Drupal\quiz\Controller\QuizQuestionFeedbackController;
-use Drupal\quiz_question\Entity\Question;
+use Drupal\quiz\Entity\QuizEntity;
 
 /**
  * QUESTION IMPLEMENTATION FUNCTIONS
@@ -68,16 +68,14 @@ abstract class QuestionPlugin {
    * @param array $form_state
    * @return unknown_type
    */
-  public function getEntityForm(array &$form_state = NULL) {
+  public function getEntityForm(array &$form_state = NULL, QuizEntity $quiz = NULL) {
     global $language;
 
     $form = array(
         // mark this form to be processed by quiz_form_alter. quiz_form_alter will among other things
         // hide the revion fieldset if the user don't have permission to controll the revisioning manually.
         '#quiz_check_revision_access' => TRUE,
-        // Store quiz id in the form
-        'quiz_qid'                    => array('#type' => 'hidden', '#default_value' => isset($_GET['quiz_qid']) ? $_GET['quiz_qid'] : NULL),
-        'quiz_vid'                    => array('#type' => 'hidden', '#default_value' => isset($_GET['quiz_vid']) ? $_GET['quiz_vid'] : NULL),
+        '#quiz'                       => $quiz,
         // Identify this node as a quiz question type so that it can be recognized
         // by other modules effectively.
         'is_quiz_question'            => array('#type' => 'value', '#value' => TRUE),
@@ -274,12 +272,12 @@ abstract class QuestionPlugin {
    *
    * @param $only_this_version
    *  If the $only_this_version flag is TRUE, then only the particular
-   *  nid/vid combo should be deleted. Otherwise, all questions with the
-   *  current nid can be deleted.
+   *  qid/vid combo should be deleted. Otherwise, all questions with the
+   *  current qid can be deleted.
    */
   public function delete($only_this_version = FALSE) {
     // Delete answeres & properties
-    $remove_answer = db_delete('quiz_results_answers')->condition('question_nid', $this->question->qid);
+    $remove_answer = db_delete('quiz_results_answers')->condition('question_qid', $this->question->qid);
     if ($only_this_version) {
       $remove_answer->condition('question_vid', $this->question->vid);
     }
@@ -317,9 +315,9 @@ abstract class QuestionPlugin {
   public static function elementValidate(&$element, &$form_state) {
     $quiz = quiz_load(quiz_get_id_from_url());
 
-    $question_nid = $element['#array_parents'][1];
-    $answer = $form_state['values']['question'][$question_nid];
-    $current_question = quiz_question_entity_load($question_nid);
+    $question_qid = $element['#array_parents'][1];
+    $answer = $form_state['values']['question'][$question_qid];
+    $current_question = quiz_question_entity_load($question_qid);
 
     // There was an answer submitted.
     $response = quiz_answer_controller()->getInstance($_SESSION['quiz'][$quiz->qid]['result_id'], $current_question, $answer);
@@ -379,7 +377,7 @@ abstract class QuestionPlugin {
     $values = array();
     $values['quiz_qid'] = $quiz_qid;
     $values['quiz_vid'] = $quiz_vid;
-    $values['question_nid'] = $this->question->qid;
+    $values['question_qid'] = $this->question->qid;
     $values['question_vid'] = $this->question->vid;
     $values['max_score'] = $this->getMaximumScore();
     $values['auto_update_max_score'] = $this->autoUpdateMaxScore() ? 1 : 0;
@@ -391,9 +389,9 @@ abstract class QuestionPlugin {
     // Update max_score for relationships if auto update max score is enabled
     // for question
     $update_quiz_ids = array();
-    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_nid = :nid AND question_vid = :vid AND auto_update_max_score = 1';
+    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_qid = :qid AND question_vid = :vid AND auto_update_max_score = 1';
     $result = db_query($sql, array(
-        ':nid' => $this->question->qid,
+        ':qid' => $this->question->qid,
         ':vid' => $this->question->vid));
     foreach ($result as $record) {
       $update_quiz_ids[] = $record->vid;
@@ -401,7 +399,7 @@ abstract class QuestionPlugin {
 
     db_update('quiz_relationship')
       ->fields(array('max_score' => $this->getMaximumScore()))
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->condition('auto_update_max_score', 1)
       ->execute();

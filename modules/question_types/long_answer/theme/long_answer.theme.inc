@@ -10,7 +10,7 @@
  * Theme the list of unscored long answer questions.
  *
  * @param $unscored
- *  An array of objects, each with the question_nid, question_vid, and result_id of an unscored question.
+ *  An array of objects, each with the question_qid, question_vid, and result_id of an unscored question.
  */
 function theme_long_answer_view_unscored($variables) {
   $unscored = $variables['unscored'];

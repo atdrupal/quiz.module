@@ -55,7 +55,7 @@ class ResultGenerator {
     foreach ($question_list as $i => $question) {
       entity_create('quiz_result_answer', array(
           'result_id'    => $result->result_id,
-          'question_nid' => $question['qid'],
+          'question_qid' => $question['qid'],
           'question_vid' => $question['vid'],
           'number'       => $i,
       ))->save();

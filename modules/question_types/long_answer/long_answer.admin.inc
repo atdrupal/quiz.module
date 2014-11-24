@@ -116,9 +116,9 @@ function long_answer_score_form($form, $form_state, $question, $answer) {
       '#type'  => 'value',
       '#value' => $answer->rel_max_score,
   );
-  $form['question_nid'] = array(
+  $form['question_qid'] = array(
       '#type'  => 'value',
-      '#value' => $answer->question_nid,
+      '#value' => $answer->question_qid,
   );
   $form['question_vid'] = array(
       '#type'  => 'value',
@@ -153,7 +153,7 @@ function long_answer_score_form_submit($form, &$form_state) {
 
   $return = long_answer_score_an_answer(array(
       'quiz'            => $result->getQuiz(),
-      'nid'             => $form_state['values']['question_nid'],
+      'qid'             => $form_state['values']['question_qid'],
       'vid'             => $form_state['values']['question_vid'],
       'result_id'       => $form_state['values']['result_id'],
       'score'           => $form_state['values']['score'],

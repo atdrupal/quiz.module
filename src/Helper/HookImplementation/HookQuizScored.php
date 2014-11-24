@@ -44,7 +44,7 @@ class HookQuizScored {
       FROM {taxonomy_index} ti
       JOIN {taxonomy_term_data} td
         ON td.tid = ti.tid AND td.vid = :vid
-      WHERE ti.nid = :nid", array(':nid' => $this->quiz->qid, ':vid' => userpoints_get_vid()))->fetchField();
+      WHERE ti.qid = :qid", array(':qid' => $this->quiz->qid, ':vid' => userpoints_get_vid()))->fetchField();
 
     $variables = array(
         '@title' => $this->quiz->title,

@@ -41,9 +41,9 @@ abstract class QuizResultBaseController {
    *   Array of answers.
    */
   protected function getAnswers() {
-    $sql = "SELECT ra.question_nid, ra.question_vid, question.type, rs.max_score, qt.max_score as term_max_score"
+    $sql = "SELECT ra.question_qid, ra.question_vid, question.type, rs.max_score, qt.max_score as term_max_score"
       . " FROM {quiz_results_answers} ra "
-      . "   LEFT JOIN {quiz_question} question ON ra.question_nid = question.qid"
+      . "   LEFT JOIN {quiz_question} question ON ra.question_qid = question.qid"
       . "   LEFT JOIN {quiz_results} r ON ra.result_id = r.result_id"
       . "   LEFT OUTER JOIN {quiz_relationship} rs ON (ra.question_vid = rs.question_vid) AND rs.quiz_vid = r.quiz_vid"
       . "   LEFT OUTER JOIN {quiz_terms} qt ON (qt.vid = :vid AND qt.tid = ra.tid) "
@@ -74,7 +74,7 @@ abstract class QuizResultBaseController {
     }
 
     // Invoke hook_get_report().
-    if (!$report = module_invoke($module, 'get_report', $db_row->question_nid, $db_row->question_vid, $this->result->result_id)) {
+    if (!$report = module_invoke($module, 'get_report', $db_row->question_qid, $db_row->question_vid, $this->result->result_id)) {
       return;
     }
 

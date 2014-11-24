@@ -101,9 +101,9 @@ class FormSubmission extends QuizTakeBaseController {
     elseif (!empty($form_state['values']['question'])) {
       foreach (array_keys($form_state['values']['question']) as $question_id) {
         foreach ($this->result->layout as $item) {
-          if ($question_id == $item['nid']) {
+          if ($question_id == $item['qid']) {
             $question_array = $item;
-            $current_question = quiz_question_entity_load($item['nid'], $item['vid']);
+            $current_question = quiz_question_entity_load($item['qid'], $item['vid']);
           }
         }
 
@@ -174,10 +174,10 @@ class FormSubmission extends QuizTakeBaseController {
     // have pages of unanswered questions. Also kills a lot of the skip code that
     // was necessary before.
     foreach ($this->result->layout as $qinfo) {
-      $current_question = quiz_question_entity_load($qinfo['nid'], $qinfo['vid']);
+      $current_question = quiz_question_entity_load($qinfo['qid'], $qinfo['vid']);
 
       foreach ($this->result->layout as $question) {
-        if ($question['nid'] == $current_question->nid) {
+        if ($question['qid'] == $current_question->qid) {
           $question_array = $question;
         }
       }
@@ -266,11 +266,11 @@ class FormSubmission extends QuizTakeBaseController {
 
     // Looking up the tid of the selected Userpoint vocabulary
     $selected_tid = db_query("SELECT tid FROM {taxonomy_index}
-                WHERE nid = :nid AND tid IN (
+                WHERE qid = :qid AND tid IN (
                   SELECT tid
                   FROM {taxonomy_term_data} t_t_d JOIN {taxonomy_vocabulary} t_v ON t_v.vid = t_t_d.vid
                   WHERE t_t_d.vid = :vid
-                )", array(':nid' => $this->quiz->qid, ':vid' => $this->quiz->vid,
+                )", array(':qid' => $this->quiz->qid, ':vid' => $this->quiz->vid,
         ':vid' => userpoints_get_vid()))->fetchField();
     $variables = array(
         '@title' => $this->quiz->title,

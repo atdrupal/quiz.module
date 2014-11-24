@@ -8,7 +8,7 @@ class Answer extends Entity {
 
   public $result_answer_id;
   public $result_id;
-  public $question_nid;
+  public $question_qid;
   public $question_vid;
   public $tid;
   public $is_correct;

@@ -26,12 +26,12 @@ function scale_help($path, $args) {
  */
 function scale_menu() {
   $items['scale/collection/manage'] = array(
-    'title' => 'Manage your preset collections',
-    'access callback' => 'node_access',
-    'access arguments' => array('create', 'scale'),
-    'type' => MENU_SUGGESTED_ITEM,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('scale_manage_collection_form'),
+      'title'            => 'Manage your preset collections',
+      'access callback'  => 'node_access',
+      'access arguments' => array('create', 'scale'),
+      'type'             => MENU_SUGGESTED_ITEM,
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('scale_manage_collection_form'),
   );
   return $items;
 }
@@ -42,28 +42,28 @@ function scale_menu() {
 function scale_theme($existing, $type, $theme, $path) {
   $module_path = drupal_get_path('module', 'scale');
   return array(
-    'scale_creation_form' => array(
-      'render element' => 'form',
-      'path' =>  $module_path . '/theme',
-      'file' => 'scale.theme.inc',
-    ),
-    'scale_response_form' => array(
-      'render element' => 'form',
-      'path' => $module_path . '/theme',
-      'file' => 'scale.theme.inc',
-    ),
-    'scale_answer_node_view' => array(
-      'variables' => array(
-        'alternatives' => NULL,
+      'scale_creation_form'    => array(
+          'render element' => 'form',
+          'path'           => $module_path . '/theme',
+          'file'           => 'scale.theme.inc',
       ),
-      'path' => $module_path . '/theme',
-      'file' => 'scale.theme.inc',
-    ),
-    'scale_answering_form' => array(
-      'render element' => 'form',
-      'path' => $module_path . '/theme',
-      'template' => 'scale-answering-form',
-    ),
+      'scale_response_form'    => array(
+          'render element' => 'form',
+          'path'           => $module_path . '/theme',
+          'file'           => 'scale.theme.inc',
+      ),
+      'scale_answer_node_view' => array(
+          'variables' => array(
+              'alternatives' => NULL,
+          ),
+          'path'      => $module_path . '/theme',
+          'file'      => 'scale.theme.inc',
+      ),
+      'scale_answering_form'   => array(
+          'render element' => 'form',
+          'path'           => $module_path . '/theme',
+          'template'       => 'scale-answering-form',
+      ),
   );
 }
 
@@ -72,9 +72,9 @@ function scale_theme($existing, $type, $theme, $path) {
  */
 function scale_permission() {
   return array(
-    'Edit global presets' => array(
-      'title' => t('Administer presets'),
-    ),
+      'Edit global presets' => array(
+          'title' => t('Administer presets'),
+      ),
   );
 }
 
@@ -83,13 +83,13 @@ function scale_permission() {
  */
 function scale_quiz_question_info() {
   return array(
-    'scale' => array(
-      'name' => t('Scale question'),
-      'description' => t('Quiz questions that allow a user to choose from a scale.'),
-      'question provider' => 'ScaleQuestion',
-      'response provider' => 'ScaleResponse',
-      'module' => 'quiz_question', // All wrapper functions are in that module.
-    ),
+      'scale' => array(
+          'name'              => t('Scale question'),
+          'description'       => t('Quiz questions that allow a user to choose from a scale.'),
+          'question provider' => 'ScaleQuestion',
+          'response provider' => 'ScaleResponse',
+          'module'            => 'quiz_question', // All wrapper functions are in that module.
+      ),
   );
 }
 
@@ -99,9 +99,9 @@ function scale_quiz_question_info() {
 function scale_quiz_question_config() {
   $form['manage'] = array('#markup' => l(t('Manage presets'), 'scale/collection/manage'));
   $form['scale_max_num_of_alts'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Maximum number of alternatives allowed'),
-    '#default_value' => variable_get('scale_max_num_of_alts', 10),
+      '#type'          => 'textfield',
+      '#title'         => t('Maximum number of alternatives allowed'),
+      '#default_value' => variable_get('scale_max_num_of_alts', 10),
   );
   $form['#validate'][] = 'scale_config_validate';
   return $form;
@@ -119,10 +119,13 @@ function scale_config_validate($form, $form_state) {
 /**
  * Implements hook_get_answer().
  */
-function scale_get_answer($question_nid, $question_vid, $result_id) {
-  $results = db_query('SELECT answer_id, question_vid, question_nid, result_id
+function scale_get_answer($question_qid, $question_vid, $result_id) {
+  $results = db_query('SELECT answer_id, question_vid, question_qid, result_id
     FROM {quiz_scale_user_answers}
-    WHERE question_nid = :qnid AND question_vid = :qvid AND result_id = :rid', array(':qnid' => $question_nid, ':qvid' => $question_vid, ':rid' => $result_id))->fetchAssoc();
+    WHERE question_qid = :question_id AND question_vid = :qvid AND result_id = :rid', array(
+      ':question_id' => $question_qid,
+      ':qvid'        => $question_vid,
+      ':rid'         => $result_id))->fetchAssoc();
   return $results ? $results : FALSE;
 }
 
@@ -136,7 +139,7 @@ function scale_user_cancel($edit, $account, $method) {
               AND ac.for_all = :for_all
               AND ac.id NOT IN
                 (SELECT answer_collection_id
-                 FROM {quiz_scale_node_properties})
+                 FROM {quiz_scale_properties})
               AND ac.id NOT IN
                 (SELECT answer_collection_id
                  FROM {quiz_scale_user}
@@ -183,62 +186,62 @@ function scale_manage_collection_form($form, &$form_state) {
   $form = array();
   if (count($collections) == 0) {
     $form['no_col'] = array(
-      '#markup' => t("You don't have any preset collections."),
+        '#markup' => t("You don't have any preset collections."),
     );
     return $form;
   }
   // Populate the form
   foreach ($collections as $col_id => $obj) {
     $form["collection$col_id"] = array(
-      '#type' => 'fieldset',
-      '#title' => $collections[$col_id]->name,
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#group' => 'scale_manage_collection_form',
+        '#type'        => 'fieldset',
+        '#title'       => $collections[$col_id]->name,
+        '#collapsible' => TRUE,
+        '#collapsed'   => TRUE,
+        '#group'       => 'scale_manage_collection_form',
     );
     $alternatives = isset($collections[$col_id]->alternatives) ? $collections[$col_id]->alternatives : array();
     for ($i = 0; $i < variable_get('scale_max_num_of_alts', 10); $i++) {
       $form["collection$col_id"]["alternative$i"] = array(
-        '#title' => t('Alternative !i', array('!i' => ($i + 1))),
-        '#size' => 60,
-        '#maxlength' => 256,
-        '#type' => 'textfield',
-        '#default_value' => isset($alternatives[$i]) ? $alternatives[$i] : '',
-        '#required' => (($i < 2) && $col_id != 'new'),
+          '#title'         => t('Alternative !i', array('!i' => ($i + 1))),
+          '#size'          => 60,
+          '#maxlength'     => 256,
+          '#type'          => 'textfield',
+          '#default_value' => isset($alternatives[$i]) ? $alternatives[$i] : '',
+          '#required'      => (($i < 2) && $col_id != 'new'),
       );
     }
     if ($col_id != 'new') {
       if ($edit_globals_access) {
         $form["collection$col_id"]['for_all'] = array(
-          '#type' => 'checkbox',
-          '#title' => t('Available to all users'),
-          '#default_value' => $collections[$col_id]->for_all,
+            '#type'          => 'checkbox',
+            '#title'         => t('Available to all users'),
+            '#default_value' => $collections[$col_id]->for_all,
         );
       }
       $form["collection$col_id"]['to-do'] = array(
-        '#type' => 'radios',
-        '#title' => t('What will you do?'),
-        '#default_value' => '0',
-        '#options' => array(
-          t('Save changes, do not change questions using this preset'),
-          t('Save changes, and change your own questions who uses this preset'),
-          t('Delete this preset(This will not affect existing questions)')),
+          '#type'          => 'radios',
+          '#title'         => t('What will you do?'),
+          '#default_value' => '0',
+          '#options'       => array(
+              t('Save changes, do not change questions using this preset'),
+              t('Save changes, and change your own questions who uses this preset'),
+              t('Delete this preset(This will not affect existing questions)')),
       );
     }
     else {
       $form["collection$col_id"]["to-do"] = array(
-        '#type' => 'value',
-        '#value' => 3,
+          '#type'  => 'value',
+          '#value' => 3,
       );
       $form["collection$col_id"]["for_all"] = array(
-        '#type' => 'value',
-        '#value' => 1,
+          '#type'  => 'value',
+          '#value' => 1,
       );
     }
   }
   $form['process'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
+      '#type'  => 'submit',
+      '#value' => t('Submit'),
   );
   $form['#submit'][] = 'scale_collection_form_submit';
   if ($edit_globals_access) {
@@ -289,9 +292,9 @@ function scale_collection_form_submit($form, &$form_state) {
           elseif ($alternatives['to-do'] == 1) {
             // Update all the users questions where the collection is used
             $nids = db_query('SELECT nid FROM {node} WHERE uid = :uid', array(':uid' => 1))->fetchCol();
-            db_update('quiz_scale_node_properties')
+            db_update('quiz_scale_properties')
               ->fields(array('answer_collection_id' => $new_col_id))
-              ->condition('answer_collection_id', $nids, 'IN')
+              ->condition('answer_collection_id', $nids)
               ->execute();
 
             db_delete('quiz_scale_user')
@@ -367,7 +370,7 @@ function _scale_unpreset_collection($col_id, $user_id) {
     ->execute();
   if (user_access('Edit global presets')) {
     db_update('quiz_scale_answer_collection')
-      ->fields(array('for_all' =>  0))
+      ->fields(array('for_all' => 0))
       ->execute();
   }
 }
@@ -384,7 +387,7 @@ function _scale_unpreset_collection($col_id, $user_id) {
 function _scale_set_for_all($new_col_id, $for_all) {
   db_update('quiz_scale_answer_collection')
     ->fields(array(
-      'for_all' => $for_all,
+        'for_all' => $for_all,
     ))
     ->condition('id', $new_col_id)
     ->execute();

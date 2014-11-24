@@ -30,18 +30,18 @@ class RevisionActionsForm {
     // Fetch data for all the quizzes that was kept
     $quiz_qids = array();
     $quiz_vids = array();
-    foreach ($_SESSION['quiz_question_kept'] as $nid_vid) {
-      list($nid, $vid) = explode('-', $nid_vid);
-      if (quiz_valid_integer($nid, 0) && quiz_valid_integer($vid, 0)) {
-        $quiz_qids[] = $nid;
+    foreach ($_SESSION['quiz_question_kept'] as $id) {
+      list($qid, $vid) = explode('-', $id);
+      if (quiz_valid_integer($qid, 0) && quiz_valid_integer($vid, 0)) {
+        $quiz_qids[] = $qid;
         $quiz_vids[] = $vid;
       }
     }
     $quizzes = array();
-    $sql = 'SELECT nr.nid, nr.vid, nr.title, n.status
-      FROM {node_revision} nr
-      JOIN {node} n ON n.nid = nr.nid
-      WHERE nr.vid IN (:vids)';
+    $sql = 'SELECT revision.qid, revision.vid, revision.title, question.status
+      FROM {quiz_question_revision} revision
+        JOIN {quiz_question} question ON question.nid = revision.nid
+      WHERE revision.vid IN (:vids)';
     $quiz_rows = db_query($sql, array(':vids' => $quiz_vids));
     foreach ($quiz_rows as $quiz_row) {
       $quiz_row->answered = quiz_has_been_answered($quiz_row);
@@ -170,7 +170,7 @@ class RevisionActionsForm {
     // FORMAT: Update[0,1], revise[0,1] and publish[0,1]
     list($update, $revise, $publish) = str_split($value);
 
-    // FORMAT: nid(int), vid(int), published[0,1] and answered[0,1]
+    // FORMAT: qid(int), vid(int), published[0,1] and answered[0,1]
     list($qid, $vid, $published, ) = explode('-', $key);
 
     // If we are to revise the quiz we need to do that first…
@@ -202,9 +202,9 @@ class RevisionActionsForm {
         'SELECT max_score, auto_update_max_score
             FROM {quiz_relationship}
             WHERE quiz_vid = :quiz_vid
-              AND question_nid = :question_nid', array(
+              AND question_qid = :question_qid', array(
           ':quiz_vid'     => $quiz_vid,
-          ':question_nid' => $form_state['values']['q_qid'],
+          ':question_qid' => $form_state['values']['q_qid'],
         ))->fetch();
 
       $auto_update_max_score = 0;
@@ -227,10 +227,10 @@ class RevisionActionsForm {
          FROM {quiz_relationship}
             WHERE quiz_qid = :quiz_qid
                 AND quiz_vid = :quiz_vid
-                AND question_nid = :question_nid', array(
+                AND question_qid = :question_qid', array(
           ':quiz_qid'     => $quiz_qid,
           ':quiz_vid'     => $quiz_vid,
-          ':question_nid' => $form_state['values']['q_qid'],
+          ':question_qid' => $form_state['values']['q_qid'],
       ));
 
       if ($res_o = $res->fetch()) {
@@ -238,7 +238,7 @@ class RevisionActionsForm {
         db_delete('quiz_relationship')
           ->condition('quiz_qid', $quiz_qid)
           ->condition('quiz_vid', $quiz_vid)
-          ->condition('question_nid', $form_state['values']['q_qid'])
+          ->condition('question_qid', $form_state['values']['q_qid'])
           ->execute();
         $weight = $res_o->weight;
         $question_status = $res_o->question_status;
@@ -257,7 +257,7 @@ class RevisionActionsForm {
       $relationship = (object) array(
             'quiz_qid'              => $quiz_qid,
             'quiz_vid'              => $quiz_vid,
-            'question_nid'          => $form_state['values']['q_qid'],
+            'question_qid'          => $form_state['values']['q_qid'],
             'question_vid'          => $form_state['values']['q_vid'],
             'max_score'             => $max_score,
             'weight'                => $weight,

@@ -23,122 +23,63 @@ function scale_install() {
  * Implements hook_schema().
  */
 function scale_schema() {
-  $schema['quiz_scale_node_properties'] = array(
+  $schema['quiz_scale_properties'] = array(
       'description' => 'Properties specific to this question type. Holds information about what answer collection this node uses',
       'fields'      => array(
-          'nid'                  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'vid'                  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'answer_collection_id' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
+          'qid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'vid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'answer_collection_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       ),
-      'primary key' => array(
-          'nid', 'vid',
-      ),
+      'primary key' => array('qid', 'vid'),
   );
+
   // Stores the users answers to a question.
   $schema['quiz_scale_user_answers'] = array(
       'description' => 'Store the users answers',
       'fields'      => array(
-          'answer_id'    => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'result_id'    => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'question_nid' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'question_vid' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
+          'answer_id'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'result_id'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_qid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_vid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       ),
       'primary key' => array(
-          'result_id', 'question_nid', 'question_vid'
+          'result_id', 'question_qid', 'question_vid'
       ),
   );
 
   $schema['quiz_scale_answer_collection'] = array(
       'description' => 'Answer collection ids and properties',
       'fields'      => array(
-          'id'      => array(
-              'type'     => 'serial',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'for_all' => array(
-              'description' => '1 for global presets, 0 otherwise',
-              'type'        => 'int',
-              'unsigned'    => TRUE,
-              'not null'    => TRUE,
-              'default'     => 0,
-          ),
+          'id'      => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE,),
+          'for_all' => array('description' => '1 for global presets, 0 otherwise', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0,),
       ),
-      'primary key' => array(
-          'id',
-      ),
+      'primary key' => array('id'),
   );
 
   $schema['quiz_scale_user'] = array(
       'description' => 'User settings, store what answer collections the user have as presets',
       'fields'      => array(
-          'uid'                  => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'answer_collection_id' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
+          'uid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'answer_collection_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       ),
       'primary key' => array(
           'uid', 'answer_collection_id'
       ),
   );
+
   /*
    * Holds each answer in the answer_collections.
    */
   $schema['quiz_scale_answer'] = array(
       'description' => 'Holds all the possible answers and what answer collections they belong to',
       'fields'      => array(
-          'id'                   => array(
-              'type'     => 'serial',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'answer_collection_id' => array(
-              'type'     => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-          ),
-          'answer'               => array(
-              'type' => 'text',
-          ),
+          'id'                   => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+          'answer_collection_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'answer'               => array('type' => 'text'),
       ),
-      'primary key' => array(
-          'id',
-      ),
+      'primary key' => array('id'),
   );
+
   return $schema;
 }
 
@@ -160,17 +101,12 @@ function scale_uninstall() {
 function _scale_insert_collection($answers) {
   // Save the collection as a global preset
   $collection_id = db_insert('quiz_scale_answer_collection')
-    ->fields(array(
-        'for_all' => 1
-    ))
+    ->fields(array('for_all' => 1))
     ->execute();
 
   // Save the collections as a preset collection for user 1
   db_insert('quiz_scale_user')
-    ->fields(array(
-        'answer_collection_id' => $collection_id,
-        'uid'                  => 1,
-    ))
+    ->fields(array('answer_collection_id' => $collection_id, 'uid' => 1))
     ->execute();
 
   $insert = db_insert('quiz_scale_answer')->fields(array('answer_collection_id', 'answer'));
@@ -184,4 +120,17 @@ function _scale_insert_collection($answers) {
     $insert->values($values);
   }
   $insert->execute();
+}
+
+/**
+ * Change schema per structure of question is changed.
+ */
+function scale_update_7600() {
+  db_rename_table('quiz_scale_node_properties', 'quiz_scale_properties');
+
+  $spec_1 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_scale_properties', 'nid', 'qid', $spec_1);
+
+  $spec_2 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_scale_user_answers', 'question_nid', 'question_vid', $spec_2);
 }

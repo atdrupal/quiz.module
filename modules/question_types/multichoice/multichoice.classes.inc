@@ -130,7 +130,7 @@ class MultichoiceQuestion extends QuestionPlugin {
     if ($is_new) {
       $id = db_insert('quiz_multichoice_properties')
         ->fields(array(
-            'nid'            => $this->question->qid,
+            'qid'            => $this->question->qid,
             'vid'            => $this->question->vid,
             'choice_multi'   => $this->question->choice_multi,
             'choice_random'  => $this->question->choice_random,
@@ -152,14 +152,14 @@ class MultichoiceQuestion extends QuestionPlugin {
             'choice_random'  => $this->question->choice_random,
             'choice_boolean' => $this->question->choice_boolean,
         ))
-        ->condition('nid', $this->question->qid)
+        ->condition('qid', $this->question->qid)
         ->condition('vid', $this->question->vid)
         ->execute();
 
       // We fetch ids for the existing answers belonging to this question
       // We need to figure out if an existing alternative has been changed or deleted.
       $res = db_query('SELECT id FROM {quiz_multichoice_answers}
-              WHERE question_nid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid));
+              WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid));
 
       // We start by assuming that all existing alternatives needs to be deleted
       $ids_to_delete = array();
@@ -241,7 +241,7 @@ class MultichoiceQuestion extends QuestionPlugin {
           'feedback_if_not_chosen_format' => $alternatives['feedback_if_not_chosen_format'],
           'score_if_chosen'               => $alternatives['score_if_chosen'],
           'score_if_not_chosen'           => $alternatives['score_if_not_chosen'],
-          'question_nid'                  => $this->question->qid,
+          'question_qid'                  => $this->question->qid,
           'question_vid'                  => $this->question->vid,
           'weight'                        => isset($alternatives['weight']) ? $alternatives['weight'] : $i,
       ))
@@ -269,7 +269,7 @@ class MultichoiceQuestion extends QuestionPlugin {
           'weight'                        => isset($alternatives['weight']) ? $alternatives['weight'] : $i,
       ))
       ->condition('id', $alternatives['id'])
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->execute();
   }
@@ -322,9 +322,9 @@ class MultichoiceQuestion extends QuestionPlugin {
    * @see QuizQuestion#delete()
    */
   public function delete($only_this_version = FALSE) {
-    $delete_properties = db_delete('quiz_multichoice_properties')->condition('nid', $this->question->qid);
-    $delete_answers = db_delete('quiz_multichoice_answers')->condition('question_nid', $this->question->qid);
-    $delete_results = db_delete('quiz_multichoice_user_answers')->condition('question_nid', $this->question->qid);
+    $delete_properties = db_delete('quiz_multichoice_properties')->condition('qid', $this->question->qid);
+    $delete_answers = db_delete('quiz_multichoice_answers')->condition('question_qid', $this->question->qid);
+    $delete_results = db_delete('quiz_multichoice_user_answers')->condition('question_qid', $this->question->qid);
 
     if ($only_this_version) {
       $delete_properties->condition('vid', $this->question->vid);
@@ -334,10 +334,10 @@ class MultichoiceQuestion extends QuestionPlugin {
 
     // Delete from table quiz_multichoice_user_answer_multi
     if ($only_this_version) {
-      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_nid = :nid AND question_vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchCol();
+      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid AND question_vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchCol();
     }
     else {
-      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_nid = :nid', array(':nid' => $this->question->qid))->fetchCol();
+      $user_answer_id = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid', array(':qid' => $this->question->qid))->fetchCol();
     }
 
     if (!empty($user_answer_id)) {
@@ -363,7 +363,7 @@ class MultichoiceQuestion extends QuestionPlugin {
     $props = parent::load();
 
     $res_a = db_query('SELECT choice_multi, choice_random, choice_boolean FROM {quiz_multichoice_properties}
-            WHERE nid = :nid AND vid = :vid', array(':nid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
+            WHERE qid = :qid AND vid = :vid', array(':qid' => $this->question->qid, ':vid' => $this->question->vid))->fetchAssoc();
 
     if (is_array($res_a)) {
       $props = array_merge($props, $res_a);
@@ -373,9 +373,9 @@ class MultichoiceQuestion extends QuestionPlugin {
     $res = db_query('SELECT id, answer, answer_format, feedback_if_chosen, feedback_if_chosen_format,
             feedback_if_not_chosen, feedback_if_not_chosen_format, score_if_chosen, score_if_not_chosen, weight
             FROM {quiz_multichoice_answers}
-            WHERE question_nid = :question_nid AND question_vid = :question_vid
+            WHERE question_qid = :question_qid AND question_vid = :question_vid
             ORDER BY weight', array(
-        ':question_nid' => $this->question->qid,
+        ':question_qid' => $this->question->qid,
         ':question_vid' => $this->question->vid));
     $props['alternatives'] = array(); // init array so it can be iterated even if empty
     while ($res_arr = $res->fetchAssoc()) {
@@ -838,7 +838,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
     else { // We load the answer from the database
       $res = db_query('SELECT answer_id FROM {quiz_multichoice_user_answers} ua
               LEFT OUTER JOIN {quiz_multichoice_user_answer_multi} uam ON(uam.user_answer_id = ua.id)
-              WHERE ua.result_id = :result_id AND ua.question_nid = :question_nid AND ua.question_vid = :question_vid', array(':result_id' => $result_id, ':question_nid' => $this->question->qid, ':question_vid' => $this->question->vid));
+              WHERE ua.result_id = :result_id AND ua.question_qid = :question_qid AND ua.question_vid = :question_vid', array(':result_id' => $result_id, ':question_qid' => $this->question->qid, ':question_vid' => $this->question->vid));
       while ($res_o = $res->fetch()) {
         $this->user_answer_ids[] = $res_o->answer_id;
       }
@@ -855,7 +855,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
       ->fields(array(
           'result_id'    => $this->result_id,
           'question_vid' => $this->question->vid,
-          'question_nid' => $this->question->qid,
+          'question_qid' => $this->question->qid,
           'choice_order' => $this->choice_order
       ))
       ->execute();
@@ -877,7 +877,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
    */
   public function delete() {
     $user_answer_id = array();
-    $query = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_nid = :nid AND question_vid = :vid AND result_id = :result_id', array(':nid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
+    $query = db_query('SELECT id FROM {quiz_multichoice_user_answers} WHERE question_qid = :qid AND question_vid = :vid AND result_id = :result_id', array(':qid' => $this->question->qid, ':vid' => $this->question->vid, ':result_id' => $this->result_id));
     while ($user_answer = $query->fetch()) {
       $user_answer_id[] = $user_answer->id;
     }
@@ -890,7 +890,7 @@ class MultichoiceResponse extends QuizQuestionResponse {
 
     db_delete('quiz_multichoice_user_answers')
       ->condition('result_id', $this->result_id)
-      ->condition('question_nid', $this->question->qid)
+      ->condition('question_qid', $this->question->qid)
       ->condition('question_vid', $this->question->vid)
       ->execute();
   }
@@ -998,10 +998,10 @@ class MultichoiceResponse extends QuizQuestionResponse {
       'SELECT choice_order
           FROM {quiz_multichoice_user_answers}
           WHERE result_id = :result_id
-            AND question_nid = :question_nid
+            AND question_qid = :question_qid
             AND question_vid = :question_vid', array(
         ':result_id'    => $this->result_id,
-        ':question_nid' => $this->question->qid,
+        ':question_qid' => $this->question->qid,
         ':question_vid' => $this->question->vid))->fetchField();
     if (!$result) {
       return;
