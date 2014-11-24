@@ -50,7 +50,7 @@ class QuizAnsweringForm {
 
     foreach ($result->layout as $item) {
       if ($page_id == $item['qr_pid']) {
-        $questions[] = quiz_question_entity_load($item['nid']);
+        $questions[] = quiz_question_entity_load($item['qid']);
       }
     }
 

@@ -139,7 +139,7 @@ abstract class QuizQuestionResponse {
    * Convert data to an object that has the following properties:
    * - $score
    * - $result_id
-   * - $nid
+   * - $qid
    * - $vid
    * - $is_correct
    */

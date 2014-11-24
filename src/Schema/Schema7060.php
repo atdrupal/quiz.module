@@ -202,7 +202,7 @@ class Schema7060 {
     $schema['quiz_terms'] = array(
         'description' => 'Table storing what terms belongs to what quiz for categorized random quizzes',
         'fields'      => array(
-            'nid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Node ID'),
+            'qid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Question ID'),
             'vid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Version ID'),
             'weight'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The terms weight decides the order of the terms'),
             'tid'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Term ID'),

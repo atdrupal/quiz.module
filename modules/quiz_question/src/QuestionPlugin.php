@@ -274,8 +274,8 @@ abstract class QuestionPlugin {
    *
    * @param $only_this_version
    *  If the $only_this_version flag is TRUE, then only the particular
-   *  nid/vid combo should be deleted. Otherwise, all questions with the
-   *  current nid can be deleted.
+   *  qid/vid combo should be deleted. Otherwise, all questions with the
+   *  current qid can be deleted.
    */
   public function delete($only_this_version = FALSE) {
     // Delete answeres & properties
@@ -391,9 +391,9 @@ abstract class QuestionPlugin {
     // Update max_score for relationships if auto update max score is enabled
     // for question
     $update_quiz_ids = array();
-    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_qid = :nid AND question_vid = :vid AND auto_update_max_score = 1';
+    $sql = 'SELECT quiz_vid as vid FROM {quiz_relationship} WHERE question_qid = :qid AND question_vid = :vid AND auto_update_max_score = 1';
     $result = db_query($sql, array(
-        ':nid' => $this->question->qid,
+        ':qid' => $this->question->qid,
         ':vid' => $this->question->vid));
     foreach ($result as $record) {
       $update_quiz_ids[] = $record->vid;

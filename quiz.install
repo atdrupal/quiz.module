@@ -363,6 +363,8 @@ function quiz_update_7601() {
   db_change_field('quiz_result_options', 'nid', 'quiz_qid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'ID of quiz entity'));
   db_change_field('quiz_result_options', 'vid', 'quiz_vid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Version ID of quiz entity'));
   db_rename_table('quiz_node_results_answers', 'quiz_results_answers');
+
+  db_change_field('quiz_terms', 'nid', 'qid', array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'Question ID'));
 }
 
 /**

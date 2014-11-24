@@ -153,7 +153,7 @@ function long_answer_score_form_submit($form, &$form_state) {
 
   $return = long_answer_score_an_answer(array(
       'quiz'            => $result->getQuiz(),
-      'nid'             => $form_state['values']['question_qid'],
+      'qid'             => $form_state['values']['question_qid'],
       'vid'             => $form_state['values']['question_vid'],
       'result_id'       => $form_state['values']['result_id'],
       'score'           => $form_state['values']['score'],

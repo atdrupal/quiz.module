@@ -27,8 +27,8 @@ class NodeInsertHelper extends NodeHelper {
 
       // Format the current questions for referencing
       foreach ($questions as $question) {
-        $questions[$question['nid']]->state = $question->question_status;
-        $questions[$question['nid']]->refresh = 0;
+        $questions[$question['qid']]->state = $question->question_status;
+        $questions[$question['qid']]->refresh = 0;
       }
 
       $quiz->getQuestionIO()->setQuestions($questions);

@@ -50,7 +50,7 @@ class QuestionIO {
       if (!empty($question_ids)) {
         $query->condition('question.qid', $question_ids, 'NOT IN');
       }
-      $query->join('taxonomy_index', 'tn', 'question.nid = tn.nid');
+      $query->join('taxonomy_index', 'tn', 'question.qid = tn.qid');
       $result = $query
         ->fields('question', array('qid', 'vid'))
         ->fields('tn', array('tid'))
@@ -183,7 +183,7 @@ class QuestionIO {
 
     // Get all published questions with one of the allowed term ids.
     $query = db_select('question', 'question');
-    $query->innerJoin('taxonomy_index', 'tn', 'question.qid = tn.nid');
+    $query->innerJoin('taxonomy_index', 'tn', 'question.qid = tn.qid');
     $query->addExpression(1, 'random');
 
     return $query

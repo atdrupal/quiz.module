@@ -30,18 +30,18 @@ class RevisionActionsForm {
     // Fetch data for all the quizzes that was kept
     $quiz_qids = array();
     $quiz_vids = array();
-    foreach ($_SESSION['quiz_question_kept'] as $nid_vid) {
-      list($nid, $vid) = explode('-', $nid_vid);
-      if (quiz_valid_integer($nid, 0) && quiz_valid_integer($vid, 0)) {
-        $quiz_qids[] = $nid;
+    foreach ($_SESSION['quiz_question_kept'] as $id) {
+      list($qid, $vid) = explode('-', $id);
+      if (quiz_valid_integer($qid, 0) && quiz_valid_integer($vid, 0)) {
+        $quiz_qids[] = $qid;
         $quiz_vids[] = $vid;
       }
     }
     $quizzes = array();
-    $sql = 'SELECT nr.nid, nr.vid, nr.title, n.status
-      FROM {node_revision} nr
-      JOIN {node} n ON n.nid = nr.nid
-      WHERE nr.vid IN (:vids)';
+    $sql = 'SELECT revision.qid, revision.vid, revision.title, question.status
+      FROM {quiz_question_revision} revision
+        JOIN {quiz_question} question ON question.nid = revision.nid
+      WHERE revision.vid IN (:vids)';
     $quiz_rows = db_query($sql, array(':vids' => $quiz_vids));
     foreach ($quiz_rows as $quiz_row) {
       $quiz_row->answered = quiz_has_been_answered($quiz_row);
@@ -170,7 +170,7 @@ class RevisionActionsForm {
     // FORMAT: Update[0,1], revise[0,1] and publish[0,1]
     list($update, $revise, $publish) = str_split($value);
 
-    // FORMAT: nid(int), vid(int), published[0,1] and answered[0,1]
+    // FORMAT: qid(int), vid(int), published[0,1] and answered[0,1]
     list($qid, $vid, $published, ) = explode('-', $key);
 
     // If we are to revise the quiz we need to do that first…

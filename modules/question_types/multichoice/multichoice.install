@@ -33,13 +33,13 @@ function multichoice_schema() {
       'fields'      => array(
           'id'           => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
           'result_id'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-          'question_nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_qid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'question_vid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'choice_order' => array('type' => 'text'),
       ),
       'primary key' => array('id'),
       'indexes'     => array(
-          'answer_id' => array('result_id', 'question_nid', 'question_vid'),
+          'answer_id' => array('result_id', 'question_qid', 'question_vid'),
       ),
   );
 
@@ -58,13 +58,13 @@ function multichoice_schema() {
 
   $schema['quiz_multichoice_properties'] = array(
       'fields'      => array(
-          'nid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'qid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'vid'            => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'choice_multi'   => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
           'choice_random'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
           'choice_boolean' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
       ),
-      'primary key' => array('nid', 'vid'),
+      'primary key' => array('qid', 'vid'),
   );
 
   /*
@@ -81,12 +81,12 @@ function multichoice_schema() {
           'feedback_if_not_chosen_format' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
           'score_if_chosen'               => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0),
           'score_if_not_chosen'           => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0),
-          'question_nid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+          'question_qid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'question_vid'                  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
           'weight'                        => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0),
       ),
       'primary key' => array('id'),
-      'indexes'     => array('quiz_id' => array('question_nid', 'question_vid'))
+      'indexes'     => array('quiz_id' => array('question_qid', 'question_vid'))
   );
 
   $schema['quiz_multichoice_user_settings'] = array(
@@ -108,4 +108,18 @@ function multichoice_update_7501() {
   db_add_field('quiz_multichoice_answers', 'weight', array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0));
   db_query('UPDATE {quiz_multichoice_answers} SET weight = id');
   return t('Added weights for multichoice alternatives.');
+}
+
+/**
+ * Change schema per question structure changed.
+ */
+function multichoice_update_7600() {
+  $spec = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_multichoice_user_answers', 'question_nid', 'question_qid', $spec);
+
+  $spec_2 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_multichoice_properties', 'nid', 'qid', $spec_2);
+
+  $spec_3 = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE);
+  db_change_field('quiz_multichoice_answers', 'question_nid', 'question_qid', $spec_3);
 }
